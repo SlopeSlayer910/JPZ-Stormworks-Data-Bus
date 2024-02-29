@@ -48,6 +48,8 @@ require("JPZ-Stormworks-General-Library")
 tick = 0
 unitNumber = 0
 targets = {gps1 = {x = 0, y = 0, z = 0}, gps2 = {x = 0, y = 0, z = 0}, look = {pitch = 0, yaw = 0, distance = 0}}
+targetAlias = {"gps1", "gps2", "look"}
+currentTarget = {}
 
 function onTick()
     targetBus = input.getNumber(21)
@@ -60,6 +62,7 @@ function onTick()
         tick = tick + bar*2^i
     end
     --#endregion
+    currentTarget = targets[targetAlias[1]]
 end
 
 function onDraw()

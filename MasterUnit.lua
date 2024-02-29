@@ -48,7 +48,7 @@ require("JPZ-Stormworks-General-Library")
 ticks = 0
 tickBits = {false, false, false, false}
 function onTick()
-    ticks = ticks + 1
+    ticks = (ticks+1)%16
     tickBool = bitTableToBoolTable(intToBits(ticks))
     for k, v in pairs(tickBits) do
         output.setBool(k+24,v)
@@ -56,7 +56,7 @@ function onTick()
 end
 
 function onDraw()
-    screen.drawCircle(16,16,5)
+    screen.drawCircleF(16,16,5)
 end
 
 
