@@ -44,10 +44,15 @@ end
 
 -- try require("Folder.Filename") to include code from another file in this, so you can store code in libraries
 -- the "LifeBoatAPI" is included by default in /_build/libs/ - you can use require("LifeBoatAPI") to get this, and use all the LifeBoatAPI.<functions>!
-
+require("JPZ-Stormworks-General-Library")
 ticks = 0
+tickBits = {false, false, false, false}
 function onTick()
     ticks = ticks + 1
+    tickBool = bitTableToBoolTable(intToBits(ticks))
+    for k, v in pairs(tickBits) do
+        output.setBool(k+24,v)
+    end
 end
 
 function onDraw()

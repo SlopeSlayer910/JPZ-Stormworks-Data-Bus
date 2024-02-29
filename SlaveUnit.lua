@@ -44,10 +44,22 @@ end
 
 -- try require("Folder.Filename") to include code from another file in this, so you can store code in libraries
 -- the "LifeBoatAPI" is included by default in /_build/libs/ - you can use require("LifeBoatAPI") to get this, and use all the LifeBoatAPI.<functions>!
+require("JPZ-Stormworks-General-Library")
+tick = 0
+unitNumber = 0
+targets = {gps1 = {x = 0, y = 0, z = 0}, gps2 = {x = 0, y = 0, z = 0}, look = {pitch = 0, yaw = 0, distance = 0}}
 
-ticks = 0
 function onTick()
-    ticks = ticks + 1
+    targetBus = input.getNumber(21)
+    nameBus = input.getNumber(22)
+    typeBus = input.getNumber(23)
+    --#region Get current master tick
+    for i = 0, 3, 1 do
+        local foo = input.getBool(25+i)
+        local bar = (foo and 1 or 0)
+        tick = tick + bar*2^i
+    end
+    --#endregion
 end
 
 function onDraw()
