@@ -49,9 +49,11 @@ tick = 0
 unitNumber = 0
 targets = {gps1 = {x = 0, y = 0, z = 0}, gps2 = {x = 0, y = 0, z = 0}, look = {pitch = 0, yaw = 0, distance = 0}}
 targetAlias = {"gps1", "gps2", "look"}
+targetEntryAlias = {gps1 = {"x", "y", "z"}, gps2 = {"x", "y", "z"}, look = {"pitch", "yaw", "distance"}}
 currentTarget = {}
 
 function onTick()
+    --#region Read Data from the bus
     targetBus = input.getNumber(21)
     nameBus = input.getNumber(22)
     typeBus = input.getNumber(23)
@@ -62,7 +64,14 @@ function onTick()
         tick = tick + bar*2^i
     end
     --#endregion
-    currentTarget = targets[targetAlias[1]]
+    --#region read data from target bus
+    targetNumber = clamp(1,4,math.floor(tick/3))                --set the selected target number based on the tick count clamed between 1 and 4
+    if targetNumber <= #targets then                            --checks if the target based on tick count is an actual target entry
+        currentTarget = targets[targetAlias[targetNumber]]      --set the selected target to the correct targets subtable based on target numbers target alias
+        currentTarget[targetEntryAlias[tick%3+1]] = targetBus   --sets the correct entry in the currentTarget to the input from the targetBus
+    end
+    --#endregion
+    --#endregion
 end
 
 function onDraw()
