@@ -45,38 +45,101 @@ end
 -- try require("Folder.Filename") to include code from another file in this, so you can store code in libraries
 -- the "LifeBoatAPI" is included by default in /_build/libs/ - you can use require("LifeBoatAPI") to get this, and use all the LifeBoatAPI.<functions>!
 require("JPZ-Stormworks-General-Library")
-tick = 0
-unitNumber = 0
-targets = {gps1 = {x = 0, y = 0, z = 0}, gps2 = {x = 0, y = 0, z = 0}, look = {pitch = 0, yaw = 0, distance = 0}}
-targetAlias = {"gps1", "gps2", "look"}
-targetEntryAlias = {gps1 = {"x", "y", "z"}, gps2 = {"x", "y", "z"}, look = {"pitch", "yaw", "distance"}}
-currentTarget = {}
+
+busChannel = 10
+id = -1
+roundTripTicks = 0
+passOn = false
 
 function onTick()
-    --#region Read Data from the bus
-    targetBus = input.getNumber(21)
-    nameBus = input.getNumber(22)
-    typeBus = input.getNumber(23)
-    --#region Get current master tick
-    for i = 0, 3, 1 do
-        local foo = input.getBool(25+i)
-        local bar = (foo and 1 or 0)
-        tick = tick + bar*2^i
+    --#region house keeping
+
+    --#endregion
+
+    --#region reads the value of the incoming bus and disassembles it into its parts
+    busInput = string.unpack("i", string.pack("f", input.getNumber(busChannel)))
+    returnFlag = readBits(busInput, 32, 1)
+    busActive = readBits(busInput, 31, 1)
+    busInstruction = readBits(busInput, 30, 7)
+    busSender = readBits(busInput, 23, 7)
+    busTarget = readBits(busInput, 16, 7)
+    busData = readBits(busInput, 9, 9)
+    --#endregion
+
+    --#region handle incoming instruction
+    if busActive == 0 then                      --if there is data on the bus service it
+        if busInstruction == 0 then             --if the bus has an id opCode on it
+            if returnFlag == 0 then           --if another unit is sending an idRequest then pass it on
+                --forward the instruction
+                returnFlagOut = returnFlag
+                busActiveOut = busActive
+                busInstructionOut = busInstruction
+                busSenderOut = busSender
+                busTargetOut = busTarget
+                busDataOut = busData
+            else                                --if it is the master sending out an id op then service it
+                id = busData + 1                --set id to busData plus 1
+                --forward the instruction but incriment the busData by 1
+                returnFlagOut = returnFlag
+                busActiveOut = busActive
+                busInstructionOut = busInstruction
+                busSenderOut = busSender
+                busTargetOut = busTarget
+                busDataOut = busData + 1
+            end
+        elseif busTarget == id then             --if the bus has an instruction for this unit
+            if busInstruction == 0 then
+                --error
+            elseif busInstruction == 1 then
+                --error
+            end
+        elseif busTarget == 127 then            --if the bus has a broadcast on it
+            if busInstruction == 1 then
+                if returnFlag == 0 then
+                    --error
+                else
+                    roundTripTicks = busData
+                end
+            end
+        end
+--#endregion
+    else                                            --if there is no data on the bus
+    --#region send out own instructions
+        if id == -1 then                            --if this unit does not yet have an id, send out an idRequest op
+            returnFlagOut = 0
+            busActiveOut = 0
+            busInstructionOut = 0
+            busSenderOut = 1                        --assumes it is the first unit in the ring
+            busTargetOut = 0
+            busDataOut = 0
+        else
+            returnFlag = 0
+            busActiveOut = 1
+            busInstructionOut = 127
+            busSenderOut = id
+            busTargetOut = 0
+            busDataOut = 0
+        end
     end
     --#endregion
-    --#region read data from target bus
-    targetNumber = clamp(1,4,math.floor(tick/3))                --set the selected target number based on the tick count clamed between 1 and 4
-    if targetNumber <= #targets then                            --checks if the target based on tick count is an actual target entry
-        currentTarget = targets[targetAlias[targetNumber]]      --set the selected target to the correct targets subtable based on target numbers target alias
-        currentTarget[targetEntryAlias[tick%3+1]] = targetBus   --sets the correct entry in the currentTarget to the input from the targetBus
+
+    --#region takes the data set by this unit and outputs it on the bus
+    busOutput = 0
+    busOutput = writeBits(busOutput, 32, returnFlagOut)
+    busOutput = writeBits(busOutput, 31, busActiveOut)
+    busOutput = writeBits(busOutput, 30, busInstructionOut)
+    busOutput = writeBits(busOutput, 23, busSenderOut)
+    busOutput = writeBits(busOutput, 16, busTargetOut)
+    busOutput = writeBits(busOutput, 9, busDataOut)
+    output.setNumber(busChannel, string.unpack("f", string.pack("i", busOutput)))
+    --#endregion
+
+    --#region passes everything that isnt the bus through
+    for i = 1, 32, 1 do
+        if i ~= busChannel then
+            output.setNumber(i,input.getNumber(i))
+        end
+        output.setBool(i,input.getBool(i))
     end
     --#endregion
-    --#endregion
 end
-
-function onDraw()
-    screen.drawCircle(16,16,5)
-end
-
-
-

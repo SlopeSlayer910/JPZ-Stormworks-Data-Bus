@@ -45,19 +45,72 @@ end
 -- try require("Folder.Filename") to include code from another file in this, so you can store code in libraries
 -- the "LifeBoatAPI" is included by default in /_build/libs/ - you can use require("LifeBoatAPI") to get this, and use all the LifeBoatAPI.<functions>!
 require("JPZ-Stormworks-General-Library")
-ticks = 0
-tickBits = {false, false, false, false}
+
+busChannel = 10
+numberOfUnitsConnected = 0
+ticksSinceNumberOfUnitsWasUpdated = 0
+roundTripTicks = 0
+waitingForID = false
 function onTick()
-    ticks = (ticks+1)%16
-    tickBool = bitTableToBoolTable(intToBits(ticks))
-    for k, v in pairs(tickBits) do
-        output.setBool(k+24,v)
+    --#region house keeping
+    ticksSinceNumberOfUnitsWasUpdated = ticksSinceNumberOfUnitsWasUpdated + 1   --ticks up the time since the number of units was last updated
+    if waitingForID then                                                        --if the master is waiting for an id it will increment the 
+        roundTripTicks = roundTripTicks + 1
     end
+    --#endregion
+
+    --#region reads the value of the incoming bus and disassembles it into its parts
+    busInput = string.unpack("i", string.pack("f", input.getNumber(busChannel)))
+    returnFlag = readBits(busInput, 32, 1)
+    busActive = readBits(busInput, 31, 1)
+    busInstruction = readBits(busInput, 30, 7)
+    busSender = readBits(busInput, 23, 7)
+    busTarget = readBits(busInput, 16, 7)
+    busData = readBits(busInput, 9, 9)
+    --#endregion
+
+    --#region handle incoming bus
+    if busActive == 0 then                                      --if there is data on the bus
+        if busInstruction == 0 then                             --if the bus has an id opCode on it
+            if returnFlag == 0 and busSender ~= 0 then        --if another unit is requesting an id call
+                if not waitingForID then
+                    --setup the instruction
+                    returnFlagOut = 1
+                    busActiveOut = 0
+                    busInstructionOut = 0
+                    busSenderOut = 0
+                    busTargetOut = 0
+                    busDataOut = 0
+                    --other stuff
+                    waitingForID = true
+                    roundTripTicks = 0
+                end
+            else                                --
+                numberOfUnitsConnected = busData
+                waitingForID = false
+                ticksSinceNumberOfUnitsWasUpdated = 0
+            end
+        end
+    end
+    --#endregion
+
+    --#region takes the data set by this unit and outputs it on the bus
+    busOutput = 0
+    busOutput = writeBits(busOutput, 32, returnFlagOut)
+    busOutput = writeBits(busOutput, 31, busActiveOut)
+    busOutput = writeBits(busOutput, 30, busInstructionOut)
+    busOutput = writeBits(busOutput, 23, busSenderOut)
+    busOutput = writeBits(busOutput, 16, busTargetOut)
+    busOutput = writeBits(busOutput, 9, busDataOut)
+    output.setNumber(busChannel, string.unpack("f", string.pack("i", busOutput)))
+    --#endregion
+
+    --#region passes everything that isnt the bus through
+    for i = 1, 32, 1 do
+        if i ~= busChannel then
+            output.setNumber(i,input.getNumber(i))
+        end
+        output.setBool(i,input.getBool(i))
+    end
+    --#endregion
 end
-
-function onDraw()
-    screen.drawCircleF(16,16,5)
-end
-
-
-
