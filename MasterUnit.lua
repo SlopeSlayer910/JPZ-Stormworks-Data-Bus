@@ -47,7 +47,7 @@ end
 require("JPZ-Stormworks-General-Library")
 
 busChannel = 10
-id = 0
+idMaster = 0
 roundTripTicks = 0
 
 numberOfUnitsConnected = 0
@@ -81,8 +81,8 @@ function onTick()
                     returnFlagOut = 1
                     busActiveOut = 0
                     busInstructionOut = 0
-                    busSenderOut = id
-                    busTargetOut = id
+                    busSenderOut = idMaster
+                    busTargetOut = idMaster
                     busDataOut = 0
                     --other stuff
                     waitingForID = true
@@ -93,13 +93,13 @@ function onTick()
                 waitingForID = false
                 ticksSinceNumberOfUnitsWasUpdated = 0
             end
-        elseif busTarget == id then
+        elseif busTarget == idMaster then
             if busInstruction == 1 then
                 if returnFlag == 0 then
                     returnFlagOut = 1
                     busActiveOut = 0
                     busInstructionOut = busInstruction
-                    busSenderOut = id
+                    busSenderOut = idMaster
                     busTargetOut = 127
                     busDataOut = roundTripTicks
                 else
@@ -116,7 +116,7 @@ function onTick()
             returnFlagOut = 1
             busActiveOut = 0
             busInstructionOut = 1
-            busSenderOut = id
+            busSenderOut = idMaster
             busTargetOut = 127
             busData = roundTripTicks
         end
