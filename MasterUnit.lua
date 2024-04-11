@@ -47,10 +47,13 @@ end
 require("JPZ-Stormworks-General-Library")
 
 busChannel = 10
+id = 0
+roundTripTicks = 0
+
 numberOfUnitsConnected = 0
 ticksSinceNumberOfUnitsWasUpdated = 0
-roundTripTicks = 0
 waitingForID = false
+
 function onTick()
     --#region house keeping
     ticksSinceNumberOfUnitsWasUpdated = ticksSinceNumberOfUnitsWasUpdated + 1   --ticks up the time since the number of units was last updated
@@ -78,8 +81,8 @@ function onTick()
                     returnFlagOut = 1
                     busActiveOut = 0
                     busInstructionOut = 0
-                    busSenderOut = 0
-                    busTargetOut = 0
+                    busSenderOut = id
+                    busTargetOut = id
                     busDataOut = 0
                     --other stuff
                     waitingForID = true
@@ -90,6 +93,32 @@ function onTick()
                 waitingForID = false
                 ticksSinceNumberOfUnitsWasUpdated = 0
             end
+        elseif busTarget == id then
+            if busInstruction == 1 then
+                if returnFlag == 0 then
+                    returnFlagOut = 1
+                    busActiveOut = 0
+                    busInstructionOut = busInstruction
+                    busSenderOut = id
+                    busTargetOut = 127
+                    busDataOut = roundTripTicks
+                else
+                    --error
+                end
+            end
+        elseif busTarget == 127 then
+            --broadcast
+        end
+    --#endregion
+    else
+    --#region Send out own instructions
+        if ticksSinceNumberOfUnitsWasUpdated > 60 then
+            returnFlagOut = 1
+            busActiveOut = 0
+            busInstructionOut = 1
+            busSenderOut = id
+            busTargetOut = 127
+            busData = roundTripTicks
         end
     end
     --#endregion
