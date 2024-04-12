@@ -125,12 +125,12 @@ function onTick()
 
     --#region takes the data set by this unit and outputs it on the bus
     busOutput = 0
-    busOutput = writeBits(busOutput, 32, returnFlagOut)
-    busOutput = writeBits(busOutput, 31, busActiveOut)
-    busOutput = writeBits(busOutput, 30, busInstructionOut)
-    busOutput = writeBits(busOutput, 23, busSenderOut)
-    busOutput = writeBits(busOutput, 16, busTargetOut)
-    busOutput = writeBits(busOutput, 9, busDataOut)
+    busOutput = writeBits(busOutput, 32, 31, returnFlagOut)
+    busOutput = writeBits(busOutput, 31, 30, busActiveOut)
+    busOutput = writeBits(busOutput, 30, 23, busInstructionOut)
+    busOutput = writeBits(busOutput, 23, 16, busSenderOut)
+    busOutput = writeBits(busOutput, 16, 9, busTargetOut)
+    busOutput = writeBits(busOutput, 9, 1, busDataOut)
     output.setNumber(busChannel, string.unpack("f", string.pack("i", busOutput)))
     --#endregion
 

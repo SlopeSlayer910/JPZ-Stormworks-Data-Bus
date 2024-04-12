@@ -50,15 +50,25 @@ busChannel = 10
 idMaster = 0
 roundTripTicks = 0
 
+updatedRoundTripTicks = 0
 numberOfUnitsConnected = 0
 ticksSinceNumberOfUnitsWasUpdated = 0
 waitingForID = false
+
+returnFlag = 0
+busActive = 0
+busInstruction = 0
+busSender = 0
+busTarget = 0
+busData = 0
 
 function onTick()
     --#region house keeping
     ticksSinceNumberOfUnitsWasUpdated = ticksSinceNumberOfUnitsWasUpdated + 1   --ticks up the time since the number of units was last updated
     if waitingForID then                                                        --if the master is waiting for an id it will increment the 
-        roundTripTicks = roundTripTicks + 1
+        updatedRoundTripTicks = updatedRoundTripTicks + 1
+    else
+        updatedRoundTripTicks = 0
     end
     --#endregion
 
@@ -75,8 +85,8 @@ function onTick()
     --#region handle incoming bus
     if busActive == 0 then                                      --if there is data on the bus
         if busInstruction == 0 then                             --if the bus has an id opCode on it
-            if returnFlag == 0 and busSender ~= 0 then        --if another unit is requesting an id call
-                if not waitingForID then
+            if returnFlag == 0 and busSender ~= 0 then          --if another unit is requesting an id call
+                if not waitingForID then                        --if there is not an id op on the ring then send one out.
                     --setup the instruction
                     returnFlagOut = 1
                     busActiveOut = 0
@@ -86,14 +96,23 @@ function onTick()
                     busDataOut = 0
                     --other stuff
                     waitingForID = true
-                    roundTripTicks = 0
                 end
-            else                                --
+            else
+                if roundTripTicks ~= updatedRoundTripTicks then --if the round trip time has changed then send out a rt update with the new value
+                    returnFlagOut = 1
+                    busActiveOut = 0
+                    busInstructionOut = 1
+                    busSenderOut = idMaster
+                    busTargetOut = 127
+                    busDataOut = updatedRoundTripTicks
+                end
+
+                roundTripTicks = updatedRoundTripTicks
                 numberOfUnitsConnected = busData
                 waitingForID = false
                 ticksSinceNumberOfUnitsWasUpdated = 0
             end
-        elseif busTarget == idMaster then
+        elseif busTarget == idMaster then                       --if the bus has a packet for this unit
             if busInstruction == 1 then
                 if returnFlag == 0 then
                     returnFlagOut = 1
@@ -106,13 +125,16 @@ function onTick()
                     --error
                 end
             end
-        elseif busTarget == 127 then
+        elseif busTarget == 127 then                            --if ther bus has a broadcast on it
+            if busSender == idMaster then
+                                                                --the broadcast has dne a full loop on the ring.
+            end
             --broadcast
         end
     --#endregion
-    else
+    elseif busActive == 1 or busActiveOut == 1 then
     --#region Send out own instructions
-        if ticksSinceNumberOfUnitsWasUpdated > 60 then
+        if ticksSinceNumberOfUnitsWasUpdated > 120 then
             returnFlagOut = 1
             busActiveOut = 0
             busInstructionOut = 1
@@ -125,12 +147,12 @@ function onTick()
 
     --#region takes the data set by this unit and outputs it on the bus
     busOutput = 0
-    busOutput = writeBits(busOutput, 32, returnFlagOut)
-    busOutput = writeBits(busOutput, 31, busActiveOut)
-    busOutput = writeBits(busOutput, 30, busInstructionOut)
-    busOutput = writeBits(busOutput, 23, busSenderOut)
-    busOutput = writeBits(busOutput, 16, busTargetOut)
-    busOutput = writeBits(busOutput, 9, busDataOut)
+    busOutput = writeBits(busOutput, 32, 31, returnFlagOut)
+    busOutput = writeBits(busOutput, 31, 30, busActiveOut)
+    busOutput = writeBits(busOutput, 30, 23, busInstructionOut)
+    busOutput = writeBits(busOutput, 23, 16, busSenderOut)
+    busOutput = writeBits(busOutput, 16, 9, busTargetOut)
+    busOutput = writeBits(busOutput, 9, 1, busDataOut)
     output.setNumber(busChannel, string.unpack("f", string.pack("i", busOutput)))
     --#endregion
 
