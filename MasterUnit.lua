@@ -94,7 +94,7 @@ function writeBits(data, bitMSB, bitLSB, bits)
     end
     mask = mask << bitLSB-1
     mask = ~mask
-    return data & mask | bits << bitLSB - 1
+    return data & mask | ((bits  or 0) << (bitLSB - 1))
 end
 ---@endsection
 
@@ -135,7 +135,7 @@ function onTick()
                     --other stuff
                     waitingForID = true
                 end
-            else
+            elseif returnFlag == 1 then
                 if roundTripTicks ~= updatedRoundTripTicks then --if the round trip time has changed then send out a rt update with the new value
                     returnFlagOut = 1
                     busActiveOut = 0
@@ -163,24 +163,30 @@ function onTick()
                     --error
                 end
             end
-        elseif busTarget == 127 then                            --if ther bus has a broadcast on it
-            if busSender == idMaster then
-                                                                --the broadcast has dne a full loop on the ring.
+        elseif busTarget == 127 then                            --if the bus has a broadcast on it
+            if busSender == idMaster then                       --if the sender is this unit then the broadcast has done a full loop on the ring.
+                busActiveOut = 1                                                
             end
             --broadcast
         end
     --#endregion
-    elseif busActive ~= 0 or busActiveOut ~= 0 then
+    elseif busActive ~= 0 or busActiveOut ~= 0 then             --if the bus was not active or there is nothing exiting this unit
     --#region Send out own instructions
-        if ticksSinceNumberOfUnitsWasUpdated > 120 then
+        if ticksSinceNumberOfUnitsWasUpdated > 60 then          --if it has been more than x ticks since the number of units was updated send out an id op
             returnFlagOut = 1
             busActiveOut = 0
-            busInstructionOut = 1
-            busSenderOut = idMaster
-            busTargetOut = 127
-            busData = roundTripTicks
-        else
+            busInstructionOut = 0
+            busSenderOut = 0
+            busTargetOut = 0
+            busData = 0
+        else                                                    --else set gracefully set the bus to inactive
+            returnFlagOut = 0
             busActiveOut = 1
+            busInstructionOut = 127
+            busSenderOut = idMaster
+            busTargetOut = 0
+            busDataOut = 0
+            
         end
     end
     --#endregion
@@ -193,7 +199,7 @@ function onTick()
     busOutput = writeBits(busOutput, 23, 17, busSenderOut)
     busOutput = writeBits(busOutput, 16, 10, busTargetOut)
     busOutput = writeBits(busOutput, 9, 1, busDataOut)
-    output.setNumber(busChannel, string.unpack("f", string.pack("i", busOutput)))
+    output.setNumber(busChannel, string.unpack("f", string.pack("i8", busOutput)))
     --#endregion
 
     --#region passes everything that isnt the bus through

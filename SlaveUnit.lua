@@ -83,7 +83,7 @@ function writeBits(data, bitMSB, bitLSB, bits)
     end
     mask = mask << bitLSB-1
     mask = ~mask
-    return data & mask | bits << bitLSB - 1
+    return data & mask | ((bits  or 0) << (bitLSB - 1))
 end
 ---@endsection
 
@@ -93,7 +93,7 @@ function onTick()
     --#endregion
 
     --#region reads the value of the incoming bus and disassembles it into its parts
-    busInput = string.unpack("i", string.pack("f", input.getNumber(busChannel)))
+    busInput = string.unpack("i8", string.pack("f", input.getNumber(busChannel)))
     returnFlag = readBits(busInput, 32, 1)
     busActive = readBits(busInput, 31, 1)
     busInstruction = readBits(busInput, 30, 7)
@@ -161,13 +161,13 @@ function onTick()
     
     --#region takes the data set by this unit and outputs it on the bus
     busOutput = 0
-    busOutput = writeBits(busOutput, 32, 31, returnFlagOut)
-    busOutput = writeBits(busOutput, 31, 30, busActiveOut)
-    busOutput = writeBits(busOutput, 30, 23, busInstructionOut)
-    busOutput = writeBits(busOutput, 23, 16, busSenderOut)
-    busOutput = writeBits(busOutput, 16, 9, busTargetOut)
+    busOutput = writeBits(busOutput, 32, 32, returnFlagOut)
+    busOutput = writeBits(busOutput, 31, 31, busActiveOut)
+    busOutput = writeBits(busOutput, 30, 24, busInstructionOut)
+    busOutput = writeBits(busOutput, 23, 17, busSenderOut)
+    busOutput = writeBits(busOutput, 16, 10, busTargetOut)
     busOutput = writeBits(busOutput, 9, 1, busDataOut)
-    output.setNumber(busChannel, string.unpack("f", string.pack("i", busOutput)))
+    output.setNumber(busChannel, string.unpack("f", string.pack("i8", busOutput)))
     --#endregion
 
     --#region passes everything that isnt the bus through
