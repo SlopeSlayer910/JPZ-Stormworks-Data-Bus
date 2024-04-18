@@ -44,7 +44,6 @@ end
 
 -- try require("Folder.Filename") to include code from another file in this, so you can store code in libraries
 -- the "LifeBoatAPI" is included by default in /_build/libs/ - you can use require("LifeBoatAPI") to get this, and use all the LifeBoatAPI.<functions>!
---require("JPZ-Stormworks-General-Library")
 
 busChannel = 10
 idMaster = 0
@@ -62,41 +61,7 @@ busSender = 0
 busTarget = 0
 busData = 0
 
----@section readBits
---Extracts an integer with the binary equivilent of the designated part of the data input
----@param data number The integer to extract the bits from
----@param startBit number The position of the MSB that you want to extract
----@param numberOfBits number The number of bits to extract
----@return number bitValue The integer with the binary equivilent of the designated part of the data input
-function readBits(data, startBit, numberOfBits)
-    local bitValue = 0
-    for i = 1, numberOfBits, 1 do
-        bitValue = bitValue << 1
-        bitValue = bitValue|((data >> startBit-i)&1)
-    end
-    return bitValue
-end
----@endsection
 
----@section writeBits 
---FIXME
---Extracts an integer with the binary equivilent of the designated part of the data input
----@param data number The integer to write the bits too
----@param bitMSB number The position of the MSB that you want to write
----@param bitLSB number The position of the LSB that you want to write
----@param bits number The integer reprisenting the bits to write
----@return number bitValue The integer with the bits written to it
-function writeBits(data, bitMSB, bitLSB, bits)
-    local data = data or 0                                --Makes sure data is not nil
-    local mask = 0
-    for i = 0, bitMSB-bitLSB, 1 do
-        mask = mask | (1 << (i))
-    end
-    mask = mask << bitLSB-1
-    mask = ~mask
-    return data & mask | ((bits  or 0) << (bitLSB - 1))
-end
----@endsection
 
 
 
