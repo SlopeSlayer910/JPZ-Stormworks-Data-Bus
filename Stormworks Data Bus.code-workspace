@@ -4,6 +4,11 @@
 			"name": "Stormworks Data Bus",
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"todo-tree.tree.showCountsInTree": true,
+		"todo-tree.tree.showBadges": true,
+		"todo-tree.tree.disableCompactFolders": false
+	}
 	
 }
