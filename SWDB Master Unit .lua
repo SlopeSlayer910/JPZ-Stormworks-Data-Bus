@@ -47,11 +47,13 @@ end
 key = {"returnFlag", "busFreeFlag", "instruction", "senderAddr", "recieverAddr","data"}
 incoming = {}
 outgoing = {}
+busChannel = 1
 
 --setup unit
 unit = {}
 unit.type = 0
 unit.address = 0
+unit.timeSinceAddrClear = 0
 
 --setup address space
 addresses = {}
@@ -64,7 +66,7 @@ addresses[126] = {type = 2, occupied = false}
 addresses[127] = {type = 3, occupied = true}
 
 function onTick() --input
-    incoming.floatValue = input.getNumber(2)
+    incoming.floatValue = input.getNumber(busChannel)
     incoming.packedData = string.pack("f", incoming.floatValue)
 	incoming.int = string.unpack("I4", incoming.packedData)
     --incoming data
@@ -102,6 +104,11 @@ function onTick() --input
                 addresses[address].occupied = false
                 setBusInactive()
             end
+        elseif incoming[key[3]] == 1 then --clearAddr has looped back to the master
+            for i = 1, 126 do
+                addresses[i].occupied = false
+            end
+            setBusInactive()
         else
             setBusPassthrough()
         end
@@ -111,14 +118,33 @@ function onTick() --input
     
     
     --add own instructions if the outgoing bus is Inactive
-    --TODO add way to add own instructions if the outgoing bus is Inactive
+    if outgoing[key[2]] == 1 then --if the outgoing bus is inactive then
+        if unit.timeSinceAddrClear > 60 then --if the addresses havent been cleared  for more than a second, clear them.
+            unit.timeSinceAddrClear = 0
+            outgoing[key[1]] = 0
+            outgoing[key[2]] = 0
+            outgoing[key[3]] = 1
+            outgoing[key[4]] = 0
+            outgoing[key[5]] = 127
+            outgoing[key[6]] = 0
+        end
+        
+    end
 
     --outbound packet
     outgoing.int = (outgoing[key[1]] << 31 | outgoing[key[2]] << 30 | outgoing[key[3]] << 23 | outgoing[key[4]] << 16 | outgoing[key[5]] << 9 | outgoing[key[6]])
     output.setNumber(1, outgoing.int)
     outgoing.packedData = string.pack("I4", outgoing.int)
     outgoing.floatValue = string.unpack("f", outgoing.packedData)
-    output.setNumber(2, outgoing.floatValue)
+    output.setNumber(busChannel, outgoing.floatValue)
+
+    --update timers
+    unit.timeSinceAddrClear = unit.timeSinceAddrClear + 1
+
+    --telemerty
+    output.setNumber(2, unit.type)
+    output.setNumber(3, unit.address)
+    output.setNumber(4, unit.timeSinceAddrClear)
 end
 
 function onDraw()
