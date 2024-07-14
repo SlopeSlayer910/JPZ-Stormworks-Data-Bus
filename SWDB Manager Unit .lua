@@ -128,18 +128,20 @@ function onDraw()
     local i = 0
     for key, value in pairs(key) do
         i = i + 1
-        screen.drawText(2, 6*i-4, string.sub(value, 1, 3) .. " = " .. incoming[value])
+        screen.drawText(2, (6*i)-4, string.sub(value, 1, 3) .. " = " .. incoming[value])
     end
 
     screen.setColor(255, 0, 0)
 
     for key, value in pairs(key) do
         i = i + 1
-        screen.drawText(2, 6*i-2, string.sub(value, 1, 3) .. " = " .. outgoing[value])
+        screen.drawText(2, (6*i)-2, string.sub(value, 1, 3) .. " = " .. outgoing[value])
     end
 
     screen.setColor(0,0,0)
-    screen.drawText(2, 6*i, "Unit Manager")
+    
+    i = i + 1
+    screen.drawText(2, (6*i), "Unit Manager")
 end
 
 function setBusInactive()

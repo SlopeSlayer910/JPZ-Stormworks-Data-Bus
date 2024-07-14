@@ -139,6 +139,8 @@ function onDraw()
     end
 
     screen.setColor(0,0,0)
+
+    i = i + 1
     screen.drawText(2, 6*i, "Unit")
 end
 
