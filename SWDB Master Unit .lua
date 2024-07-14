@@ -44,12 +44,25 @@ end
 
 -- try require("Folder.Filename") to include code from another file in this, so you can store code in libraries
 -- the "LifeBoatAPI" is included by default in /_build/libs/ - you can use require("LifeBoatAPI") to get this, and use all the LifeBoatAPI.<functions>!
-unit = {}
-unit.type = 0
-unit.address = 0
 key = {"returnFlag", "busFreeFlag", "instruction", "senderAddr", "recieverAddr","data"}
 incoming = {}
 outgoing = {}
+
+--setup unit
+unit = {}
+unit.type = 0
+unit.address = 0
+
+--setup address space
+addresses = {}
+addresses[0] = {type = 0, occupied = true}
+for i = 1, 125, 1 do
+    addresses[i] = {type = 1, occupied = false}
+end
+addresses[63] = {type = 2, occupied = false}
+addresses[126] = {type = 2, occupied = false}
+addresses[127] = {type = 3, occupied = true}
+
 function onTick() --input
     incoming.floatValue = input.getNumber(2)
     incoming.packedData = string.pack("f", incoming.floatValue)
@@ -68,11 +81,24 @@ function onTick() --input
     --handle incoming data
     if incoming[key[3]] == 0 then --idReq/idProv
         if incoming[key[1]] == 0 then --idReq
-            --TODO Add handeling for incoming idReq to a master unit 
-            --HACK Using setBusInactive() as intrum fix for above
-            setBusInactive()
+            outgoing[key[1]] = 1
+            outgoing[key[2]] = 0
+            outgoing[key[3]] = 0
+            outgoing[key[4]] = 0
+            outgoing[key[5]] = 127
+            outgoing[key[6]] = incoming[key[6]] << 7
+
+            for index, value in pairs(addresses) do --search addresses to find find first unoccupied address with the type requested and update data to show that
+                if value.occupied == false and value.type == incoming[key[6]] then
+                    outgoing[key[6]] = outgoing[key[6]] | index
+                    value.occupied = true
+                    break
+                end
+            end
         elseif incoming[key[1]] == 1 then --idProv
-            --if the idProv hasn't been pulled off the bus before being handed back to the master, pull it off the bus.
+            --if the idProv hasn't been pulled off the bus before being handed back to the master, pull it off the bus and set the address to unoccupied.
+            local address = incoming[key[6]] & (2^7-1)
+            addresses[address].occupied = false
             setBusInactive()
         end
     else
