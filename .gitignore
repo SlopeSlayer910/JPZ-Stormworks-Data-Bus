@@ -1,4 +1,4 @@
 /_build/
 !/_build/_buildactions.lua
+!/_build/out/release/
 /.vscode/
-/Testing.lua
