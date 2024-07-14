@@ -68,21 +68,26 @@ function onTick() --input
     setBusPassthrough()
 
     --handle incoming data
-    if incoming[key[3]] == 0 then --idReq/idProv
-        if incoming[key[1]] == 1 then --idReq
-            --pass on the idReq
-            setBusPassthrough()
-        elseif incoming[key[1]] == 1 then --idProv
-            --check the incoming idProv to see if it is able to be used by this unit, if it is take it off the bus and assign this unit the provided number. if not then pass it on.
-            if (incoming[key[6]] >> 7) == unit.type then --if the two greatest data bits which indicate the type match the unit type then take it off the bus and assign this unit the provided number. if not then pass it on.
-                setBusInactive()
-                unit.address = incoming[key[6]] & (2^7-1) --set the unit address to the address provided by the idProv
-            else
+
+    if incoming[key[2]] == 0 then
+        if incoming[key[3]] == 0 then --idReq/idProv
+            if incoming[key[1]] == 1 then --idReq
+                --pass on the idReq
                 setBusPassthrough()
+            elseif incoming[key[1]] == 1 then --idProv
+                --check the incoming idProv to see if it is able to be used by this unit, if it is take it off the bus and assign this unit the provided number. if not then pass it on.
+                if (incoming[key[6]] >> 7) == unit.type then --if the two greatest data bits which indicate the type match the unit type then take it off the bus and assign this unit the provided number. if not then pass it on.
+                    setBusInactive()
+                    unit.address = incoming[key[6]] & (2^7-1) --set the unit address to the address provided by the idProv
+                else
+                    setBusPassthrough()
+                end
             end
+        else
+            setBusPassthrough()
         end
     else
-        setBusPassthrough()
+        setBusInactive()
     end
     
     --add own instructions if the outgoing bus is Inactive

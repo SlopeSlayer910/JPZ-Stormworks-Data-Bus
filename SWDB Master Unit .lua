@@ -79,31 +79,36 @@ function onTick() --input
     setBusPassthrough()
 
     --handle incoming data
-    if incoming[key[3]] == 0 then --idReq/idProv
-        if incoming[key[1]] == 0 then --idReq
-            outgoing[key[1]] = 1
-            outgoing[key[2]] = 0
-            outgoing[key[3]] = 0
-            outgoing[key[4]] = 0
-            outgoing[key[5]] = 127
-            outgoing[key[6]] = incoming[key[6]] << 7
-
-            for index, value in pairs(addresses) do --search addresses to find find first unoccupied address with the type requested and update data to show that
-                if value.occupied == false and value.type == incoming[key[6]] then
-                    outgoing[key[6]] = outgoing[key[6]] | index
-                    value.occupied = true
-                    break
+    if incoming[key[2]] == 0 then
+        if incoming[key[3]] == 0 then --idReq/idProv
+            if incoming[key[1]] == 0 then --idReq
+                outgoing[key[1]] = 1
+                outgoing[key[2]] = 0
+                outgoing[key[3]] = 0
+                outgoing[key[4]] = 0
+                outgoing[key[5]] = 127
+                outgoing[key[6]] = incoming[key[6]] << 7
+    
+                for index, value in pairs(addresses) do --search addresses to find find first unoccupied address with the type requested and update data to show that
+                    if value.occupied == false and value.type == incoming[key[6]] then
+                        outgoing[key[6]] = outgoing[key[6]] | index
+                        value.occupied = true
+                        break
+                    end
                 end
+            elseif incoming[key[1]] == 1 then --idProv
+                --if the idProv hasn't been pulled off the bus before being handed back to the master, pull it off the bus and set the address to unoccupied.
+                local address = incoming[key[6]] & (2^7-1)
+                addresses[address].occupied = false
+                setBusInactive()
             end
-        elseif incoming[key[1]] == 1 then --idProv
-            --if the idProv hasn't been pulled off the bus before being handed back to the master, pull it off the bus and set the address to unoccupied.
-            local address = incoming[key[6]] & (2^7-1)
-            addresses[address].occupied = false
-            setBusInactive()
+        else
+            setBusPassthrough()
         end
     else
-        setBusPassthrough()
+        setBusInactive()
     end
+    
     
     --add own instructions if the outgoing bus is Inactive
     --TODO add way to add own instructions if the outgoing bus is Inactive
