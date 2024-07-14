@@ -154,7 +154,7 @@ function onDraw()
     screen.setColor(0,0,0)
 
     i = i + 1
-    screen.drawText(2, 6*i, "Unit")
+    screen.drawText(2, 6*i, "Weapon")
 end
 
 function setBusInactive()
