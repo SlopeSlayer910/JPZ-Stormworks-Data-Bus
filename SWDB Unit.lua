@@ -44,16 +44,14 @@ end
 
 -- try require("Folder.Filename") to include code from another file in this, so you can store code in libraries
 -- the "LifeBoatAPI" is included by default in /_build/libs/ - you can use require("LifeBoatAPI") to get this, and use all the LifeBoatAPI.<functions>!
-unit = {}
-unit.type = 0
-if unit.type == 0 then
-    unit.address = 0
-else
-    unit.address = -1
-end
 key = {"returnFlag", "busFreeFlag", "instruction", "senderAddr", "recieverAddr","data"}
 incoming = {}
 outgoing = {}
+
+unit = {}
+unit.type = 1
+unit.address = -1
+
 function onTick() --input
     incoming.floatValue = input.getNumber(2)
     incoming.packedData = string.pack("f", incoming.floatValue)
@@ -70,38 +68,21 @@ function onTick() --input
     setBusPassthrough()
 
     --handle incoming data
-    if unit.type == 0 then
-        --if unit is a Master
-        if incoming[key[3]] == 0 then --idReq/idProv
-            if incoming[key[1]] == 0 then --idReq
-                --TODO Add handeling for incoming idReq to a master unit 
-                --HACK Using setBusInactive() as intrum fix for above
-                setBusInactive()
-            elseif incoming[key[1]] == 1 then --idProv
-                --if the idProv hasn't been pulled off the bus before being handed back to the master, pull it off the bus.
-                setBusInactive()
-            end
-        else
+    if incoming[key[3]] == 0 then --idReq/idProv
+        if incoming[key[1]] == 1 then --idReq
+            --pass on the idReq
             setBusPassthrough()
-        end
-    elseif type == 1 then
-        --if unit is a normal unit
-        if incoming[key[3]] == 0 then --idReq/idProv
-            if incoming[key[1]] == 1 then --idReq
-                --pass on the idReq
+        elseif incoming[key[1]] == 1 then --idProv
+            --check the incoming idProv to see if it is able to be used by this unit, if it is take it off the bus and assign this unit the provided number. if not then pass it on.
+            if (incoming[key[6]] >> 7) == unit.type then --if the two greatest data bits which indicate the type match the unit type then take it off the bus and assign this unit the provided number. if not then pass it on.
+                setBusInactive()
+                unit.address = incoming[key[6]] & (2^7-1) --set the unit address to the address provided by the idProv
+            else
                 setBusPassthrough()
-            elseif incoming[key[1]] == 1 then --idProv
-                --check the incoming idProv to see if it is able to be used by this unit, if it is take it off the bus and assign this unit the provided number. if not then pass it on.
-                if (incoming[key[6]] >> 7) == unit.type then --if the two greatest data bits which indicate the type match the unit type then take it off the bus and assign this unit the provided number. if not then pass it on.
-                    setBusInactive()
-                    unit.address = incoming[key[6]] & (2^7-1) --set the unit address to the address provided by the idProv
-                else
-                    setBusPassthrough()
-                end
             end
-        else
-            setBusPassthrough()
         end
+    else
+        setBusPassthrough()
     end
     
     --add own instructions if the outgoing bus is Inactive
