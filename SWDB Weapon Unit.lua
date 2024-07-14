@@ -59,8 +59,7 @@ unit.type = 1
 unit.address = -1
 unit.manager = -1
 unit.weapon.mainType = property.getNumber("Main Type")
-unit.weapon.subType = property.getNumber("Sub Type")
-unit.weapon.ammo = 0
+unit.weapon.subType = property.getNumber("Sub Type")    
 
 function onTick() --input
     incoming.floatValue = input.getNumber(busChannel)
@@ -118,7 +117,7 @@ function onTick() --input
             outgoing[key[3]] = 2
             outgoing[key[4]] = unit.address
             outgoing[key[5]] = 127
-            outgoing[key[6]] = unit.weapon.mainType*10 + unit.weapon.subType
+            outgoing[key[6]] = (unit.weapon.mainType & (2^3-1) << 4) | (unit.weapon.subType & (2^4-1))
         end
     end
 
