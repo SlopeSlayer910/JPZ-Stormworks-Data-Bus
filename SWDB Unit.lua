@@ -44,6 +44,8 @@ end
 
 -- try require("Folder.Filename") to include code from another file in this, so you can store code in libraries
 -- the "LifeBoatAPI" is included by default in /_build/libs/ - you can use require("LifeBoatAPI") to get this, and use all the LifeBoatAPI.<functions>!
+--TODO Add functionality for this unit type
+
 key = {"returnFlag", "busFreeFlag", "instruction", "senderAddr", "recieverAddr","data"}
 incoming = {}
 outgoing = {}
@@ -135,6 +137,9 @@ function onDraw()
         i = i + 1
         screen.drawText(2, 6*i-2, string.sub(value, 1, 3) .. " = " .. outgoing[value])
     end
+
+    screen.setColor(0,0,0)
+    screen.drawText(2, 6*i, "Unit")
 end
 
 function setBusInactive()

@@ -53,19 +53,8 @@ busChannel = 1
 
 --setup unit
 unit = {}
-unit.type = 0
-unit.address = 0
-unit.timeSinceAddrClear = 0
-
---setup address space
-addresses = {}
-addresses[0] = {type = 0, occupied = true}
-for i = 1, 125, 1 do
-    addresses[i] = {type = 1, occupied = false}
-end
-addresses[63] = {type = 2, occupied = false}
-addresses[126] = {type = 2, occupied = false}
-addresses[127] = {type = 3, occupied = true}
+unit.type = 2
+unit.address = -1
 
 function onTick() --input
     incoming.floatValue = input.getNumber(busChannel)
@@ -83,34 +72,24 @@ function onTick() --input
     setBusPassthrough()
 
     --handle incoming data
+
     if incoming[key[2]] == 0 then
         if incoming[key[3]] == 0 then --idReq/idProv
             if incoming[key[1]] == 0 then --idReq
-                outgoing[key[1]] = 1
-                outgoing[key[2]] = 0
-                outgoing[key[3]] = 0
-                outgoing[key[4]] = 0
-                outgoing[key[5]] = 127
-                outgoing[key[6]] = incoming[key[6]] << 7
-    
-                for index, value in pairs(addresses) do --search addresses to find find first unoccupied address with the type requested and update data to show that
-                    if value.occupied == false and value.type == incoming[key[6]] then
-                        outgoing[key[6]] = outgoing[key[6]] | index
-                        value.occupied = true
-                        break
-                    end
-                end
+                --pass on the idReq
+                setBusPassthrough()
             elseif incoming[key[1]] == 1 then --idProv
-                --if the idProv hasn't been pulled off the bus before being handed back to the master, pull it off the bus and set the address to unoccupied.
-                local address = incoming[key[6]] & (2^7-1)
-                addresses[address].occupied = false
-                setBusInactive()
+                --check the incoming idProv to see if it is able to be used by this unit, if it is take it off the bus and assign this unit the provided number. if not then pass it on.
+                if (incoming[key[6]] >> 7) == unit.type and unit.address == -1 then --if the two greatest data bits which indicate the type match the unit's needed type then take it off the bus and assign this unit the provided number. if not then pass it on.
+                    unit.address = incoming[key[6]] & (2^7-1) --set the unit address to the address provided by the idProv
+                    setBusInactive()
+                else
+                    setBusPassthrough()
+                end
             end
-        elseif incoming[key[3]] == 1 then --clearAddr has looped back to the master
-            for i = 1, 126 do
-                addresses[i].occupied = false
-            end
-            setBusInactive()
+        elseif incoming[key[3]] == 0 then --clearAddr
+            unit.address = -1
+            setBusPassthrough()
         else
             setBusPassthrough()
         end
@@ -118,19 +97,16 @@ function onTick() --input
         setBusInactive()
     end
     
-    
     --add own instructions if the outgoing bus is Inactive
     if outgoing[key[2]] == 1 then --if the outgoing bus is inactive then
-        if unit.timeSinceAddrClear > 60 then --if the addresses havent been cleared  for more than a second, clear them.
-            unit.timeSinceAddrClear = 0
+        if unit.address == -1 then
             outgoing[key[1]] = 0
             outgoing[key[2]] = 0
-            outgoing[key[3]] = 1
-            outgoing[key[4]] = 0
-            outgoing[key[5]] = 127
-            outgoing[key[6]] = 0
+            outgoing[key[3]] = 0
+            outgoing[key[4]] = 127
+            outgoing[key[5]] = 0
+            outgoing[key[6]] = unit.type
         end
-        
     end
 
     --outbound packet
@@ -140,13 +116,9 @@ function onTick() --input
     outgoing.floatValue = string.unpack("f", outgoing.packedData)
     output.setNumber(busChannel, outgoing.floatValue)
 
-    --update timers
-    unit.timeSinceAddrClear = unit.timeSinceAddrClear + 1
-
-    --telemerty
+    --telemetry
     output.setNumber(2, unit.type)
     output.setNumber(3, unit.address)
-    output.setNumber(4, unit.timeSinceAddrClear)
 end
 
 function onDraw()
@@ -167,7 +139,7 @@ function onDraw()
     end
 
     screen.setColor(0,0,0)
-    screen.drawText(2, 6*i, "Master Unit")
+    screen.drawText(2, 6*i, "Unit Manager")
 end
 
 function setBusInactive()
