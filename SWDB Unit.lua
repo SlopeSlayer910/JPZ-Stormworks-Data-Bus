@@ -47,13 +47,15 @@ end
 key = {"returnFlag", "busFreeFlag", "instruction", "senderAddr", "recieverAddr","data"}
 incoming = {}
 outgoing = {}
+busChannel = 1
 
+--setup unit
 unit = {}
 unit.type = 1
 unit.address = -1
 
 function onTick() --input
-    incoming.floatValue = input.getNumber(2)
+    incoming.floatValue = input.getNumber(busChannel)
     incoming.packedData = string.pack("f", incoming.floatValue)
 	incoming.int = string.unpack("I4", incoming.packedData)
     --incoming data
@@ -76,13 +78,16 @@ function onTick() --input
                 setBusPassthrough()
             elseif incoming[key[1]] == 1 then --idProv
                 --check the incoming idProv to see if it is able to be used by this unit, if it is take it off the bus and assign this unit the provided number. if not then pass it on.
-                if (incoming[key[6]] >> 7) == unit.type then --if the two greatest data bits which indicate the type match the unit type then take it off the bus and assign this unit the provided number. if not then pass it on.
-                    setBusInactive()
+                if (incoming[key[6]] >> 7) == unit.type and unit.address == -1 then --if the two greatest data bits which indicate the type match the unit's needed type then take it off the bus and assign this unit the provided number. if not then pass it on.
                     unit.address = incoming[key[6]] & (2^7-1) --set the unit address to the address provided by the idProv
+                    setBusInactive()
                 else
                     setBusPassthrough()
                 end
             end
+        elseif incoming[key[3]] == 0 then --clearAddr
+            unit.address = -1
+            setBusPassthrough()
         else
             setBusPassthrough()
         end
@@ -91,14 +96,27 @@ function onTick() --input
     end
     
     --add own instructions if the outgoing bus is Inactive
-    --TODO add way to add own instructions if the outgoing bus is Inactive
+    if outgoing[key[2]] == 1 then --if the outgoing bus is inactive then
+        if unit.address == -1 then
+            outgoing[key[1]] = 0
+            outgoing[key[2]] = 0
+            outgoing[key[3]] = 0
+            outgoing[key[4]] = 127
+            outgoing[key[5]] = 0
+            outgoing[key[6]] = unit.type
+        end
+    end
 
     --outbound packet
     outgoing.int = (outgoing[key[1]] << 31 | outgoing[key[2]] << 30 | outgoing[key[3]] << 23 | outgoing[key[4]] << 16 | outgoing[key[5]] << 9 | outgoing[key[6]])
     output.setNumber(1, outgoing.int)
     outgoing.packedData = string.pack("I4", outgoing.int)
     outgoing.floatValue = string.unpack("f", outgoing.packedData)
-    output.setNumber(2, outgoing.floatValue)
+    output.setNumber(busChannel, outgoing.floatValue)
+
+    --telemetry
+    output.setNumber(2, unit.type)
+    output.setNumber(3, unit.address)
 end
 
 function onDraw()
