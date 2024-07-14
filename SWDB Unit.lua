@@ -71,7 +71,7 @@ function onTick() --input
 
     if incoming[key[2]] == 0 then
         if incoming[key[3]] == 0 then --idReq/idProv
-            if incoming[key[1]] == 1 then --idReq
+            if incoming[key[1]] == 0 then --idReq
                 --pass on the idReq
                 setBusPassthrough()
             elseif incoming[key[1]] == 1 then --idProv
