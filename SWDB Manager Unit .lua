@@ -56,7 +56,7 @@ unit.type = 2
 unit.address = -1
 
 --setup address space
-addresses = {}
+managedUnits = {}
 
 function onTick() --input
 	incoming.floatValue = input.getNumber(busChannel)
@@ -84,15 +84,9 @@ function onTick() --input
 				--check the incoming idProv to see if it is able to be used by this unit, if it is take it off the bus and assign this unit the provided number. if not then pass it on.
 				if (incoming[key[6]] >> 7) == unit.type and unit.address == -1 then --if the two greatest data bits which indicate the type match the unit's needed type then take it off the bus and assign this unit the provided number. if not then pass it on.
 					unit.address = incoming[key[6]] & (2^7-1) --set the unit address to the address provided by the idProv
-
-					addresses[0] = {type = 0, occupied = true}
-					for i = 1, 125, 1 do
-						addresses[i] = {type = 1, occupied = false}
+					for i = 1, 62, 1 do
+						managedUnits[unit.address-i] = {managed = false}
 					end
-					addresses[63] = {type = 2, occupied = false}
-					addresses[126] = {type = 2, occupied = false}
-					addresses[127] = {type = 3, occupied = true}
-
 					setBusInactive()
 				else
 					setBusPassthrough()
