@@ -85,7 +85,7 @@ function onTick() --input
 				if (incoming[key[6]] >> 7) == unit.type and unit.address == -1 then --if the two greatest data bits which indicate the type match the unit's needed type then take it off the bus and assign this unit the provided number. if not then pass it on.
 					unit.address = incoming[key[6]] & (2^7-1) --set the unit address to the address provided by the idProv
 					for i = 1, 62, 1 do
-						managedUnits[unit.address-i] = {managed = false}
+						managedUnits[unit.address-i] = {managed = false, unitType = "none"}
 					end
 					setBusInactive()
 				else
@@ -113,7 +113,7 @@ function onTick() --input
 					outgoing[key[4]] = unit.address
 					outgoing[key[5]] = incoming[key[4]]
 					outgoing[key[6]] = 0
-
+					managedUnits[incoming[key[4]]].managed = true --set
 				end
 			elseif incoming[key[1]] == 1 then --manProv
 				setBusPassthrough()
