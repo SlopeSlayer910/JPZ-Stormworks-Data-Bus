@@ -100,7 +100,11 @@ function onTick() --input
 			elseif incoming[key[1]] == 1 then --manProv
 				--check the incoming manProv to see if it is addresssed to this unit, if it is take it off the bus and assign this unit the provided number. if not then pass it on.
 				if incoming[key[5]] == unit.address then --if the targetAddress is the unit's then take it off the bus and assign this unit the provided number. if not then pass it on.
-					unit.manager = incoming[key[4]] --set the manager address to the sender address provided by the manProv
+					if incoming[key[4]] == 127 then --if the manProv has a broadcast address assume the there is no man unit available and set manager to -1
+						unit.manager = -1
+					else
+						unit.manager = incoming[key[4]] --set the manager address to the sender address provided by the manProv
+					end
 					setBusInactive()
 				else
 					setBusPassthrough()
