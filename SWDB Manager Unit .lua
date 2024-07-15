@@ -103,24 +103,13 @@ function onTick() --input
 			setBusPassthrough()
 		elseif incoming[key[3]] == 2 then --manReq/manProv
 			if incoming[key[1]] == 0 then --manReq
-				--handle the manReq
-				--TODO Handle manReq
-				if unit.address == -1 then --if the unit doesnt have an address send back a not available answer
-					outgoing[key[1]] = 1
-					outgoing[key[2]] = 0
-					outgoing[key[3]] = 2
-					outgoing[key[4]] = 127
-					outgoing[key[5]] = incoming[key[4]]
-					outgoing[key[6]] = 127
-				else --if the manager is available then add the unit to its list of things to manage
-					outgoing[key[1]] = 1
-					outgoing[key[2]] = 0
-					outgoing[key[3]] = 2
-					outgoing[key[4]] = unit.address
-					outgoing[key[5]] = incoming[key[4]]
-					outgoing[key[6]] = 0
-
-				end
+				--handle the manReq by assuming any manager unit as unavailable.
+				outgoing[key[1]] = 1
+				outgoing[key[2]] = 0
+				outgoing[key[3]] = 2
+				outgoing[key[4]] = 127
+				outgoing[key[5]] = incoming[key[4]]
+				outgoing[key[6]] = 127
 			elseif incoming[key[1]] == 1 then --manProv
 				setBusPassthrough()
 			end
