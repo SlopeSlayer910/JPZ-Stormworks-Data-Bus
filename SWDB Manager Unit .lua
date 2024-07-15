@@ -99,7 +99,7 @@ function onTick() --input
 		elseif incoming[key[3]] == 2 then --manReq/manProv
 			if incoming[key[1]] == 0 then --manReq
 				--handle the manReq
-				--TODO Handle manReq
+				--TODO Handle manReq for things other than weapon
 				if unit.address == -1 then --if the unit doesnt have an address send back a not available answer
 					outgoing[key[1]] = 1
 					outgoing[key[2]] = 0
@@ -114,16 +114,24 @@ function onTick() --input
 					outgoing[key[4]] = unit.address
 					outgoing[key[5]] = incoming[key[4]]
 					outgoing[key[6]] = 0
-					managedUnits[incoming[key[4]]].managed = true --set
+					managedUnits[incoming[key[4]]].managed = true --set to be a managed unit
 					if (incoming[6]>>7 & 2^2-1) == 0 then --if the first 2 bits of the type are empty then the unit sending the request is a weapon.
 						managedUnits[incoming[key[4]]].unitType = "weapon"
-						updateUnitType(managedUnits[incoming[key[4]]])
+						refreshUnitType(managedUnits[incoming[key[4]]])
 						managedUnits[incoming[key[4]]].mainType = (incoming[key[6]] >> 4 & 2^3-1)
 						managedUnits[incoming[key[4]]].subType = (incoming[key[6]] & 2^4-1)
 					end
 				end
 			elseif incoming[key[1]] == 1 then --manProv
-				setBusPassthrough()
+				if incoming[key[4]] == unit.address then --if the request has looped back to the sending manager then pull it off and deasign the addr
+					managedUnits[incoming[key[5]]].managed = false
+					managedUnits[incoming[key[5]]].unitType = "none"
+					refreshUnitType(managedUnits[incoming[key[5]]])
+					setBusInactive()
+				else
+					setBusPassthrough()
+				end
+				
 			end
 		else
 			setBusPassthrough()
@@ -197,7 +205,7 @@ function setBusPassthrough()
 	outgoing[key[6]] = incoming[key[6]]
 end
 
-function updateUnitType(unit)
+function refreshUnitType(unit)
     for key, value in pairs(unitTypeData) do
         if unit[key] ~= nil then
             unit[key] = nil
