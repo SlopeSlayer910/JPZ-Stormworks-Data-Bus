@@ -56,7 +56,8 @@ unit.type = 2
 unit.address = -1
 
 --setup address space
-managedUnits = {}
+managedUnits = {example = {managed = false, unitType = "none", none = {}}}
+unitTypeData = {none = {}, weapon = {"mainType", "subType"}}
 
 function onTick() --input
 	incoming.floatValue = input.getNumber(busChannel)
@@ -114,6 +115,12 @@ function onTick() --input
 					outgoing[key[5]] = incoming[key[4]]
 					outgoing[key[6]] = 0
 					managedUnits[incoming[key[4]]].managed = true --set
+					if (incoming[6]>>7 & 2^2-1) == 0 then --if the first 2 bits of the type are empty then the unit sending the request is a weapon.
+						managedUnits[incoming[key[4]]].unitType = "weapon"
+						updateUnitType(managedUnits[incoming[key[4]]])
+						managedUnits[incoming[key[4]]].mainType = (incoming[key[6]] >> 4 & 2^3-1)
+						managedUnits[incoming[key[4]]].subType = (incoming[key[6]] & 2^4-1)
+					end
 				end
 			elseif incoming[key[1]] == 1 then --manProv
 				setBusPassthrough()
@@ -188,4 +195,19 @@ function setBusPassthrough()
 	outgoing[key[4]] = incoming[key[4]]
 	outgoing[key[5]] = incoming[key[5]]
 	outgoing[key[6]] = incoming[key[6]]
+end
+
+function updateUnitType(unit)
+    for key, value in pairs(unitTypeData) do
+        if unit[key] ~= nil then
+            unit[key] = nil
+        end
+    end
+
+---@diagnostic disable-next-line: assign-type-mismatch
+    unit[unit.unitType] = {}
+
+    for i = 1, #unitTypeData[unit.unitType], 1 do
+        unit[unit.unitType][unitTypeData[unit.unitType][i]] = ""
+    end
 end
