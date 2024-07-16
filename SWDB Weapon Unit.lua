@@ -86,7 +86,7 @@ function onTick() --input
 				if (incoming[key[6]] >> 7) == unit.type and unit.address == -1 and (incoming[key[6]] & 2^7-1) > 0  then --if the two greatest data bits which indicate the type match the unit's needed type and the address is valid then take it off the bus and assign this unit the provided number. if not then pass it on.
 					unit.address = incoming[key[6]] & (2^7-1) --set the unit address to the address provided by the idProv
 					setBusInactive()
-				else
+				else --else pass it on
 					setBusPassthrough()
 				end
 			end
@@ -102,7 +102,7 @@ function onTick() --input
 				if incoming[key[5]] == unit.address then --if the targetAddress is the unit's then take it off the bus and assign this unit the provided number. if not then pass it on.
 					if incoming[key[4]] == 127 then --if the manProv has a broadcast address assume the there is no man unit available and set manager to -1
 						unit.manager = -1
-					else
+					else --else use the provided manager
 						unit.manager = incoming[key[4]] --set the manager address to the sender address provided by the manProv
 					end
 					setBusInactive()
@@ -119,20 +119,21 @@ function onTick() --input
 	
 	--add own instructions if the outgoing bus is Inactive
 	if outgoing[key[2]] == 1 then --if the outgoing bus is inactive then
-		if unit.address == -1 then
+		if unit.address == -1 then --if the unit doesnt have an address request one
 			outgoing[key[1]] = 0
 			outgoing[key[2]] = 0
 			outgoing[key[3]] = 0
 			outgoing[key[4]] = 127
 			outgoing[key[5]] = 0
 			outgoing[key[6]] = unit.type
-		elseif unit.manager == -1 then
+		elseif unit.manager == -1 then --else if the unit doesn't have a manager request one.
 			outgoing[key[1]] = 0
 			outgoing[key[2]] = 0
 			outgoing[key[3]] = 2
 			outgoing[key[4]] = unit.address
 			outgoing[key[5]] = 127
 			outgoing[key[6]] = (unit.weapon.mainType & (2^3-1) << 4) | (unit.weapon.subType & (2^4-1))
+		elseif false then 
 		end
 	end
 
