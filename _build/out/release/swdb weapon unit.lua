@@ -1,7 +1,7 @@
 -- Author: SlopeSlayer910
 -- GitHub: https://github.com/SlopeSlayer910
 -- Workshop: https://steamcommunity.com/profiles/76561198890501264/myworkshopfiles/
---
+-- If there is an error on line 27 make sure that you have the correct property's in the MC
 -- Developed & Minimized using LifeBoatAPI - Stormworks Lua plugin for VSCode
 -- https://code.visualstudio.com/download (search "Stormworks Lua with LifeboatAPI" extension)
 --      By Nameous Changey
