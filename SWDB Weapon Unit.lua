@@ -58,7 +58,7 @@ unit.type = 1
 unit.address = -1
 unit.manager = -1
 unit.weapon.mainType = property.getNumber("Main Type")
-unit.weapon.subType = property.getNumber("Sub Type")    
+unit.weapon.subType = property.getNumber("Sub Type")
 
 function onTick() --input
 	incoming.floatValue = input.getNumber(busChannel)
