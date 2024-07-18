@@ -10,32 +10,32 @@ x="I4"
 w=" = "
 v="f"
 
-p=pairs
-n=screen
-l=string
-u=l.sub
-o=n.drawText
-j=n.setColor
-i=output.setNumber
-r=l.unpack
-t=l.pack
-_={"returnFlag","busFreeFlag","instruction","senderAddr","recieverAddr","data"}b={}a={}s=1
+r=pairs
+m=screen
+n=string
+p=n.sub
+o=m.drawText
+i=m.setColor
+j=output.setNumber
+q=n.unpack
+t=n.pack
+_={"returnFlag","busFreeFlag","instruction","senderAddr","recieverAddr","data"}b={}a={}u=1
 c={}c.type=1
 c.h=-1
-function onTick()b.k=input.getNumber(s)b.m=t(v,b.k)b.d=r(x,b.m)b[_[1]]=(b.d>>31 & 1)b[_[2]]=(b.d>>30 & 1)b[_[3]]=(b.d>>23 &(2^7-1))b[_[4]]=(b.d>>16 &(2^7-1))b[_[5]]=(b.d>>9 &(2^7-1))b[_[6]]=(b.d &(2^9-1))g()if b[_[2]]==0 then
+function onTick()b.k=input.getNumber(u)b.l=t(v,b.k)b.e=q(x,b.l)b[_[1]]=(b.e>>31 & 1)b[_[2]]=(b.e>>30 & 1)b[_[3]]=(b.e>>23 &(2^7-1))b[_[4]]=(b.e>>16 &(2^7-1))b[_[5]]=(b.e>>9 &(2^7-1))b[_[6]]=(b.e &(2^9-1))f()if b[_[2]]==0 then
 if b[_[3]]==0 then
 if b[_[1]]==0 then
-g()elseif b[_[1]]==1 then
+f()elseif b[_[1]]==1 then
 if(b[_[6]]>>7)==c.type and c.h==-1 then
-c.h=b[_[6]]&(2^7-1)q()else
-g()end
+c.h=b[_[6]]&(2^7-1)s()else
+f()end
 end
 elseif b[_[3]]==0 then
 c.h=-1
-g()else
-g()end
+f()else
+f()end
 else
-q()end
+s()end
 if a[_[2]]==1 then
 if c.h==-1 then
 a[_[1]]=0
@@ -46,21 +46,21 @@ a[_[5]]=0
 a[_[6]]=c.type
 end
 end
-a.d=(a[_[1]]<<31|a[_[2]]<<30|a[_[3]]<<23|a[_[4]]<<16|a[_[5]]<<9|a[_[6]])i(1,a.d)a.m=t(x,a.d)a.k=r(v,a.m)i(s,a.k)i(2,c.type)i(3,c.h)end
-function onDraw()j(20,20,20)n.drawClear()j(0,255,0)local e=0
-for _,f in p(_)do
-e=e+1
-o(2,6*e-4,u(f,1,3)..w..b[f])end
-j(255,0,0)for _,f in p(_)do
-e=e+1
-o(2,6*e-2,u(f,1,3)..w..a[f])end
-j(0,0,0)e=e+1
-o(2,6*e,"Launcher")end
-function q()a[_[1]]=0
+a.e=(a[_[1]]<<31|a[_[2]]<<30|a[_[3]]<<23|a[_[4]]<<16|a[_[5]]<<9|a[_[6]])j(1,a.e)a.l=t(x,a.e)a.k=q(v,a.l)j(u,a.k)j(2,c.type)j(3,c.h)end
+function onDraw()i(20,20,20)m.drawClear()i(0,255,0)local d=0
+for _,g in r(_)do
+d=d+1
+o(2,6*d-4,p(g,1,3)..w..b[g])end
+i(255,0,0)for _,g in r(_)do
+d=d+1
+o(2,6*d-2,p(g,1,3)..w..a[g])end
+i(0,0,0)d=d+1
+o(2,6*d,"Launcher")end
+function s()a[_[1]]=0
 a[_[2]]=1
 a[_[3]]=0
 a[_[4]]=0
 a[_[5]]=0
 a[_[6]]=0
 end
-function g()a[_[1]]=b[_[1]]a[_[2]]=b[_[2]]a[_[3]]=b[_[3]]a[_[4]]=b[_[4]]a[_[5]]=b[_[5]]a[_[6]]=b[_[6]]end
+function f()a[_[1]]=b[_[1]]a[_[2]]=b[_[2]]a[_[3]]=b[_[3]]a[_[4]]=b[_[4]]a[_[5]]=b[_[5]]a[_[6]]=b[_[6]]end
