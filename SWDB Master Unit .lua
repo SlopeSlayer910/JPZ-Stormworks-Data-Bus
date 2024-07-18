@@ -52,7 +52,7 @@ busChannel = 1
 
 --setup unit
 unit = {}
-unit.type = 0
+unit.unitType = 0
 unit.address = 0
 unit.timeSinceAddrClear = 0
 
@@ -154,7 +154,7 @@ function onTick() --input
 	unit.timeSinceAddrClear = unit.timeSinceAddrClear + 1
 
 	--telemerty
-	output.setNumber(2, unit.type)
+	output.setNumber(2, unit.unitType)
 	output.setNumber(3, unit.address)
 	output.setNumber(4, unit.timeSinceAddrClear)
 end

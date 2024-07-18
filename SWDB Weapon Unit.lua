@@ -54,7 +54,7 @@ busChannel = 1
 
 --setup unit
 unit = {}
-unit.type = 1
+unit.unitType = 1
 unit.address = -1
 unit.manager = -1
 unit.weapon = {}
@@ -85,7 +85,7 @@ function onTick() --input
 				setBusPassthrough()
 			elseif incoming[key[1]] == 1 then --idProv
 				--check the incoming idProv to see if it is able to be used by this unit, if it is take it off the bus and assign this unit the provided number. if not then pass it on.
-				if (incoming[key[6]] >> 7) == unit.type and unit.address == -1 and (incoming[key[6]] & 2^7-1) > 0  then --if the two greatest data bits which indicate the type match the unit's needed type and the address is valid then take it off the bus and assign this unit the provided number. if not then pass it on.
+				if (incoming[key[6]] >> 7) == unit.unitType and unit.address == -1 and (incoming[key[6]] & 2^7-1) > 0  then --if the two greatest data bits which indicate the type match the unit's needed type and the address is valid then take it off the bus and assign this unit the provided number. if not then pass it on.
 					unit.address = incoming[key[6]] & (2^7-1) --set the unit address to the address provided by the idProv
 					setBusInactive()
 				else --else pass it on
@@ -127,7 +127,7 @@ function onTick() --input
 			outgoing[key[3]] = 0
 			outgoing[key[4]] = 127
 			outgoing[key[5]] = 0
-			outgoing[key[6]] = unit.type
+			outgoing[key[6]] = unit.unitType
 		elseif unit.manager == -1 and unit.timeSinceManReq > 60 then --else if the unit doesn't have a manager and hasnt requested one recently request one.
 			unit.timeSinceManReq = 0
 			outgoing[key[1]] = 0
@@ -151,7 +151,7 @@ function onTick() --input
 	unit.timeSinceManReq = unit.timeSinceManReq + 1
 
 	--telemetry
-	output.setNumber(2, unit.type)
+	output.setNumber(2, unit.unitType)
 	output.setNumber(3, unit.address)
 end
 
