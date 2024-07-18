@@ -153,6 +153,7 @@ function onTick() --input
 	--telemetry
 	output.setNumber(2, unit.unitType)
 	output.setNumber(3, unit.address)
+	output.setNumber(4, unit.manager)
 end
 
 function onDraw()
