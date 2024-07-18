@@ -111,10 +111,16 @@ function onTick() --input
 			end
 			setBusInactive()
 		elseif incoming[key[3]] == 2 then --manReq/manProv has looped back to the master
-			for i = 1, 126 do
-				addresses[i].occupied = false
+			if incoming[key[1]] == 0 then --manReq
+				outgoing[key[1]] = 1
+				outgoing[key[2]] = 0
+				outgoing[key[3]] = 2
+				outgoing[key[4]] = 127
+				outgoing[key[5]] = incoming[key[4]]
+				outgoing[key[6]] = 0
+			elseif incoming[key[1]] == 1 then --manProv
+				setBusPassthrough()
 			end
-			setBusInactive()
 		else
 			setBusPassthrough()
 		end
