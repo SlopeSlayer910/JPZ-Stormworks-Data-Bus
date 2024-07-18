@@ -57,8 +57,10 @@ unit = {}
 unit.type = 1
 unit.address = -1
 unit.manager = -1
+unit.weapon = {}
 unit.weapon.mainType = property.getNumber("Main Type")
 unit.weapon.subType = property.getNumber("Sub Type")
+unit.timeSinceManReq = 0
 
 function onTick() --input
 	incoming.floatValue = input.getNumber(busChannel)
@@ -126,7 +128,8 @@ function onTick() --input
 			outgoing[key[4]] = 127
 			outgoing[key[5]] = 0
 			outgoing[key[6]] = unit.type
-		elseif unit.manager == -1 then --else if the unit doesn't have a manager request one.
+		elseif unit.manager == -1 and unit.timeSinceManReq > 60 then --else if the unit doesn't have a manager and hasnt requested one recently request one.
+			unit.timeSinceManReq = 0
 			outgoing[key[1]] = 0
 			outgoing[key[2]] = 0
 			outgoing[key[3]] = 2
@@ -143,6 +146,9 @@ function onTick() --input
 	outgoing.packedData = string.pack("I4", outgoing.int)
 	outgoing.floatValue = string.unpack("f", outgoing.packedData)
 	output.setNumber(busChannel, outgoing.floatValue)
+
+	--update timers
+	unit.timeSinceManReq = unit.timeSinceManReq + 1
 
 	--telemetry
 	output.setNumber(2, unit.type)
