@@ -67,45 +67,45 @@ function onTick() --input
 	incoming.packedData = string.pack("f", incoming.floatValue)
 	incoming.int = string.unpack("I4", incoming.packedData)
 	--incoming data
-	incoming[key[1]] = (incoming.int >> 31 & 1)
-	incoming[key[2]] = (incoming.int >> 30 & 1)
-	incoming[key[3]] = (incoming.int >> 23 & (2^7-1))
-	incoming[key[4]] = (incoming.int >> 16 & (2^7-1))
-	incoming[key[5]] = (incoming.int >> 9 & (2^7-1))
-	incoming[key[6]] = (incoming.int & (2^9-1))
+	incoming[1] = (incoming.int >> 31 & 1)
+	incoming[2] = (incoming.int >> 30 & 1)
+	incoming[3] = (incoming.int >> 23 & (2^7-1))
+	incoming[4] = (incoming.int >> 16 & (2^7-1))
+	incoming[5] = (incoming.int >> 9 & (2^7-1))
+	incoming[6] = (incoming.int & (2^9-1))
 
 	--default bus to setBusPassthrough
 	setBusPassthrough()
 
 	--handle incoming data
-	if incoming[key[2]] == 0 then
-		if incoming[key[3]] == 0 then --idReq/idProv
-			if incoming[key[1]] == 0 then --idReq
+	if incoming[2] == 0 then
+		if incoming[3] == 0 then --idReq/idProv
+			if incoming[1] == 0 then --idReq
 				--pass on the idReq
 				setBusPassthrough()
-			elseif incoming[key[1]] == 1 then --idProv
+			elseif incoming[1] == 1 then --idProv
 				--check the incoming idProv to see if it is able to be used by this unit, if it is take it off the bus and assign this unit the provided number. if not then pass it on.
-				if (incoming[key[6]] >> 7) == unit.unitType and unit.address == -1 and (incoming[key[6]] & 2^7-1) > 0  then --if the two greatest data bits which indicate the type match the unit's needed type and the address is valid then take it off the bus and assign this unit the provided number. if not then pass it on.
-					unit.address = incoming[key[6]] & (2^7-1) --set the unit address to the address provided by the idProv
+				if (incoming[6] >> 7) == unit.unitType and unit.address == -1 and (incoming[6] & 2^7-1) > 0  then --if the two greatest data bits which indicate the type match the unit's needed type and the address is valid then take it off the bus and assign this unit the provided number. if not then pass it on.
+					unit.address = incoming[6] & (2^7-1) --set the unit address to the address provided by the idProv
 					setBusInactive()
 				else --else pass it on
 					setBusPassthrough()
 				end
 			end
-		elseif incoming[key[3]] == 1 then --clearAddr
+		elseif incoming[3] == 1 then --clearAddr
 			unit.address = -1
 			setBusPassthrough()
-		elseif incoming[key[3]] == 2 then --manReq/manProv
-			if incoming[key[1]] == 0 then --manReq
+		elseif incoming[3] == 2 then --manReq/manProv
+			if incoming[1] == 0 then --manReq
 				--pass on the manReq
 				setBusPassthrough()
-			elseif incoming[key[1]] == 1 then --manProv
+			elseif incoming[1] == 1 then --manProv
 				--check the incoming manProv to see if it is addresssed to this unit, if it is take it off the bus and assign this unit the provided number. if not then pass it on.
-				if incoming[key[5]] == unit.address then --if the targetAddress is the unit's then take it off the bus and assign this unit the provided number. if not then pass it on.
-					if incoming[key[4]] == 127 then --if the manProv has a broadcast address assume the there is no man unit available and set manager to -1
+				if incoming[5] == unit.address then --if the targetAddress is the unit's then take it off the bus and assign this unit the provided number. if not then pass it on.
+					if incoming[4] == 127 then --if the manProv has a broadcast address assume the there is no man unit available and set manager to -1
 						unit.manager = -1
 					else --else use the provided manager
-						unit.manager = incoming[key[4]] --set the manager address to the sender address provided by the manProv
+						unit.manager = incoming[4] --set the manager address to the sender address provided by the manProv
 					end
 					setBusInactive()
 				else
@@ -120,28 +120,28 @@ function onTick() --input
 	end
 	
 	--add own instructions if the outgoing bus is Inactive
-	if outgoing[key[2]] == 1 then --if the outgoing bus is inactive then
+	if outgoing[2] == 1 then --if the outgoing bus is inactive then
 		if unit.address == -1 then --if the unit doesnt have an address request one
-			outgoing[key[1]] = 0
-			outgoing[key[2]] = 0
-			outgoing[key[3]] = 0
-			outgoing[key[4]] = 127
-			outgoing[key[5]] = 0
-			outgoing[key[6]] = unit.unitType
+			outgoing[1] = 0
+			outgoing[2] = 0
+			outgoing[3] = 0
+			outgoing[4] = 127
+			outgoing[5] = 0
+			outgoing[6] = unit.unitType
 		elseif unit.manager == -1 and unit.timeSinceManReq > 60 then --else if the unit doesn't have a manager and hasnt requested one recently request one.
 			unit.timeSinceManReq = 0
-			outgoing[key[1]] = 0
-			outgoing[key[2]] = 0
-			outgoing[key[3]] = 2
-			outgoing[key[4]] = unit.address
-			outgoing[key[5]] = 127
-			outgoing[key[6]] = (unit.weapon.mainType & (2^3-1) << 4) | (unit.weapon.subType & (2^4-1))
+			outgoing[1] = 0
+			outgoing[2] = 0
+			outgoing[3] = 2
+			outgoing[4] = unit.address
+			outgoing[5] = 127
+			outgoing[6] = (unit.weapon.mainType & (2^3-1) << 4) | (unit.weapon.subType & (2^4-1))
 		elseif false then 
 		end
 	end
 
 	--outbound packet
-	outgoing.int = (outgoing[key[1]] << 31 | outgoing[key[2]] << 30 | outgoing[key[3]] << 23 | outgoing[key[4]] << 16 | outgoing[key[5]] << 9 | outgoing[key[6]])
+	outgoing.int = (outgoing[1] << 31 | outgoing[2] << 30 | outgoing[3] << 23 | outgoing[4] << 16 | outgoing[5] << 9 | outgoing[6])
 	output.setNumber(1, outgoing.int)
 	outgoing.packedData = string.pack("I4", outgoing.int)
 	outgoing.floatValue = string.unpack("f", outgoing.packedData)
@@ -180,19 +180,19 @@ function onDraw()
 end
 
 function setBusInactive()
-	outgoing[key[1]] = 0
-	outgoing[key[2]] = 1
-	outgoing[key[3]] = 0
-	outgoing[key[4]] = 0
-	outgoing[key[5]] = 0
-	outgoing[key[6]] = 0
+	outgoing[1] = 0
+	outgoing[2] = 1
+	outgoing[3] = 0
+	outgoing[4] = 0
+	outgoing[5] = 0
+	outgoing[6] = 0
 end
 
 function setBusPassthrough()
-	outgoing[key[1]] = incoming[key[1]]
-	outgoing[key[2]] = incoming[key[2]]
-	outgoing[key[3]] = incoming[key[3]]
-	outgoing[key[4]] = incoming[key[4]]
-	outgoing[key[5]] = incoming[key[5]]
-	outgoing[key[6]] = incoming[key[6]]
+	outgoing[1] = incoming[1]
+	outgoing[2] = incoming[2]
+	outgoing[3] = incoming[3]
+	outgoing[4] = incoming[4]
+	outgoing[5] = incoming[5]
+	outgoing[6] = incoming[6]
 end

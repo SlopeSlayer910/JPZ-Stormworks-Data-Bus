@@ -60,33 +60,33 @@ function onTick() --input
 	incoming.packedData = string.pack("f", incoming.floatValue)
 	incoming.int = string.unpack("I4", incoming.packedData)
 	--incoming data
-	incoming[key[1]] = (incoming.int >> 31 & 1)
-	incoming[key[2]] = (incoming.int >> 30 & 1)
-	incoming[key[3]] = (incoming.int >> 23 & (2^7-1))
-	incoming[key[4]] = (incoming.int >> 16 & (2^7-1))
-	incoming[key[5]] = (incoming.int >> 9 & (2^7-1))
-	incoming[key[6]] = (incoming.int & (2^9-1))
+	incoming[1] = (incoming.int >> 31 & 1)
+	incoming[2] = (incoming.int >> 30 & 1)
+	incoming[3] = (incoming.int >> 23 & (2^7-1))
+	incoming[4] = (incoming.int >> 16 & (2^7-1))
+	incoming[5] = (incoming.int >> 9 & (2^7-1))
+	incoming[6] = (incoming.int & (2^9-1))
 
 	--default bus to setBusPassthrough
 	setBusPassthrough()
 
 	--handle incoming data
 
-	if incoming[key[2]] == 0 then
-		if incoming[key[3]] == 0 then --idReq/idProv
-			if incoming[key[1]] == 0 then --idReq
+	if incoming[2] == 0 then
+		if incoming[3] == 0 then --idReq/idProv
+			if incoming[1] == 0 then --idReq
 				--pass on the idReq
 				setBusPassthrough()
-			elseif incoming[key[1]] == 1 then --idProv
+			elseif incoming[1] == 1 then --idProv
 				--check the incoming idProv to see if it is able to be used by this unit, if it is take it off the bus and assign this unit the provided number. if not then pass it on.
-				if (incoming[key[6]] >> 7) == unit.unitType and unit.address == -1 then --if the two greatest data bits which indicate the type match the unit's needed type then take it off the bus and assign this unit the provided number. if not then pass it on.
-					unit.address = incoming[key[6]] & (2^7-1) --set the unit address to the address provided by the idProv
+				if (incoming[6] >> 7) == unit.unitType and unit.address == -1 then --if the two greatest data bits which indicate the type match the unit's needed type then take it off the bus and assign this unit the provided number. if not then pass it on.
+					unit.address = incoming[6] & (2^7-1) --set the unit address to the address provided by the idProv
 					setBusInactive()
 				else
 					setBusPassthrough()
 				end
 			end
-		elseif incoming[key[3]] == 0 then --clearAddr
+		elseif incoming[3] == 0 then --clearAddr
 			unit.address = -1
 			setBusPassthrough()
 		else
@@ -97,19 +97,19 @@ function onTick() --input
 	end
 	
 	--add own instructions if the outgoing bus is Inactive
-	if outgoing[key[2]] == 1 then --if the outgoing bus is inactive then
+	if outgoing[2] == 1 then --if the outgoing bus is inactive then
 		if unit.address == -1 then
-			outgoing[key[1]] = 0
-			outgoing[key[2]] = 0
-			outgoing[key[3]] = 0
-			outgoing[key[4]] = 127
-			outgoing[key[5]] = 0
-			outgoing[key[6]] = unit.unitType
+			outgoing[1] = 0
+			outgoing[2] = 0
+			outgoing[3] = 0
+			outgoing[4] = 127
+			outgoing[5] = 0
+			outgoing[6] = unit.unitType
 		end
 	end
 
 	--outbound packet
-	outgoing.int = (outgoing[key[1]] << 31 | outgoing[key[2]] << 30 | outgoing[key[3]] << 23 | outgoing[key[4]] << 16 | outgoing[key[5]] << 9 | outgoing[key[6]])
+	outgoing.int = (outgoing[1] << 31 | outgoing[2] << 30 | outgoing[3] << 23 | outgoing[4] << 16 | outgoing[5] << 9 | outgoing[6])
 	output.setNumber(1, outgoing.int)
 	outgoing.packedData = string.pack("I4", outgoing.int)
 	outgoing.floatValue = string.unpack("f", outgoing.packedData)
@@ -127,14 +127,14 @@ function onDraw()
 	local i = 0
 	for key, value in pairs(key) do
 		i = i + 1
-		screen.drawText(2, 6*i-4, string.sub(value, 1, 3) .. " = " .. incoming[value])
+		screen.drawText(2, 6*i-4, string.sub(value, 1, 3) .. " = " .. incoming[i])
 	end
 
 	screen.setColor(255, 0, 0)
 
 	for key, value in pairs(key) do
 		i = i + 1
-		screen.drawText(2, 6*i-2, string.sub(value, 1, 3) .. " = " .. outgoing[value])
+		screen.drawText(2, 6*i-2, string.sub(value, 1, 3) .. " = " .. outgoing[i])
 	end
 
 	screen.setColor(0,0,0)
@@ -144,19 +144,19 @@ function onDraw()
 end
 
 function setBusInactive()
-	outgoing[key[1]] = 0
-	outgoing[key[2]] = 1
-	outgoing[key[3]] = 0
-	outgoing[key[4]] = 0
-	outgoing[key[5]] = 0
-	outgoing[key[6]] = 0
+	outgoing[1] = 0
+	outgoing[2] = 1
+	outgoing[3] = 0
+	outgoing[4] = 0
+	outgoing[5] = 0
+	outgoing[6] = 0
 end
 
 function setBusPassthrough()
-	outgoing[key[1]] = incoming[key[1]]
-	outgoing[key[2]] = incoming[key[2]]
-	outgoing[key[3]] = incoming[key[3]]
-	outgoing[key[4]] = incoming[key[4]]
-	outgoing[key[5]] = incoming[key[5]]
-	outgoing[key[6]] = incoming[key[6]]
+	outgoing[1] = incoming[1]
+	outgoing[2] = incoming[2]
+	outgoing[3] = incoming[3]
+	outgoing[4] = incoming[4]
+	outgoing[5] = incoming[5]
+	outgoing[6] = incoming[6]
 end
