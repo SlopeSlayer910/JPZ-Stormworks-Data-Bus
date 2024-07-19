@@ -5,102 +5,101 @@
 -- Developed & Minimized using LifeBoatAPI - Stormworks Lua plugin for VSCode
 -- https://code.visualstudio.com/download (search "Stormworks Lua with LifeboatAPI" extension)
 --      By Nameous Changey
--- Minimized Size: 2005 (2401 with comment) chars
-K=" = "
-J="I4"
-I="none"
+-- Minimized Size: 1773 (2169 with comment) chars
+I="I4"
 H="f"
+G=" = "
 
 y=nil
-u=pairs
-t=false
-s=screen
-v=string
-w=v.sub
-q=s.drawText
-k=s.setColor
+p=pairs
+n=false
+t=screen
+r=string
+x=r.sub
+q=t.drawText
+k=t.setColor
 l=output.setNumber
-A=v.unpack
-x=v.pack
-_={"returnFlag","busFreeFlag","instruction","senderAddr","recieverAddr","data"}a={}b={}z=1
-c={}c.type=2
-c.g=-1
-e={D={o=t,h=I,C={}}}p={C={},E={"mainType","subType"}}function onTick()a.m=input.getNumber(z)a.n=x(H,a.m)a.f=A(J,a.n)a[_[1]]=(a.f>>31 & 1)a[_[2]]=(a.f>>30 & 1)a[_[3]]=(a.f>>23 &(2^7-1))a[_[4]]=(a.f>>16 &(2^7-1))a[_[5]]=(a.f>>9 &(2^7-1))a[_[6]]=(a.f &(2^9-1))i()if a[_[2]]==0 then
-if a[_[3]]==0 then
-if a[_[1]]==0 then
-i()elseif a[_[1]]==1 then
-if(a[_[6]]>>7)==c.type and c.g==-1 then
-c.g=a[_[6]]&(2^7-1)for d=1,62,1 do
-e[c.g-d]={o=t,h=I}end
-r()else
-i()end
+z=r.unpack
+A=r.pack
+h={"returnFlag","busFreeFlag","instruction","senderAddr","recieverAddr","data"}_={}a={}B=1
+b={}b.d=2
+b.e=-1
+g={E={s=n,d=0,F={}}}u={[0]={},{"mainType","subType"}}function onTick()_.o=input.getNumber(B)_.m=A(H,_.o)_.f=z(I,_.m)_[1]=(_.f>>31 & 1)_[2]=(_.f>>30 & 1)_[3]=(_.f>>23 &(2^7-1))_[4]=(_.f>>16 &(2^7-1))_[5]=(_.f>>9 &(2^7-1))_[6]=(_.f &(2^9-1))j()if _[2]==0 then
+if _[3]==0 then
+if _[1]==0 then
+j()elseif _[1]==1 then
+if(_[6]>>7)==b.d and b.e==-1 then
+b.e=_[6]&(2^7-1)for c=1,62,1 do
+g[b.e-c]={s=n,d="none"}end
+v()else
+j()end
 end
-elseif a[_[3]]==1 then
-c.g=-1
-i()elseif a[_[3]]==2 then
-if a[_[1]]==0 then
-if c.g==-1 then
-b[_[1]]=1
-b[_[2]]=0
-b[_[3]]=2
-b[_[4]]=127
-b[_[5]]=a[_[4]]b[_[6]]=127
+elseif _[3]==1 then
+b.e=-1
+j()elseif _[3]==2 then
+if _[1]==0 then
+if b.e==-1 then
+a[1]=1
+a[2]=0
+a[3]=2
+a[4]=127
+a[5]=_[4]a[6]=127
 else
-b[_[1]]=1
-b[_[2]]=0
-b[_[3]]=2
-b[_[4]]=c.g
-b[_[5]]=a[_[4]]b[_[6]]=0
-e[a[_[4]]].o=true
-if(a[6]>>7 & 2^2-1)==0 then
-e[a[_[4]]].h="weapon"
-B(e[a[_[4]]])e[a[_[4]]].G=(a[_[6]]>>4 & 2^3-1)e[a[_[4]]].F=(a[_[6]]& 2^4-1)end
+a[1]=1
+a[2]=0
+a[3]=2
+a[4]=b.e
+a[5]=_[4]a[6]=0
+g[_[4]].s=true
+if(_[6]>>7 & 2^2-1)==0 then
+g[_[4]].d="weapon"
+w(g[_[4]])g[_[4]].D=(_[6]>>4 & 2^3-1)g[_[4]].C=(_[6]& 2^4-1)end
 end
-elseif a[_[1]]==1 then
-if a[_[4]]==c.g then
-e[a[_[5]]].o=t
-e[a[_[5]]].h=I
-B(e[a[_[5]]])r()else
-i()end
+elseif _[1]==1 then
+if _[4]==b.e then
+g[_[5]].s=n
+g[_[5]].d=0
+w(g[_[5]])v()else
+j()end
 end
 else
-i()end
+j()end
 else
-r()end
-if b[_[2]]==1 then
-if c.g==-1 then
-b[_[1]]=0
-b[_[2]]=0
-b[_[3]]=0
-b[_[4]]=127
-b[_[5]]=0
-b[_[6]]=c.type
+v()end
+if a[2]==1 then
+if b.e==-1 then
+a[1]=0
+a[2]=0
+a[3]=0
+a[4]=127
+a[5]=0
+a[6]=b.d
 end
 end
-b.f=(b[_[1]]<<31|b[_[2]]<<30|b[_[3]]<<23|b[_[4]]<<16|b[_[5]]<<9|b[_[6]])l(1,b.f)b.n=x(J,b.f)b.m=A(H,b.n)l(z,b.m)l(2,c.type)l(3,c.g)end
-function onDraw()k(20,20,20)s.drawClear()k(0,255,0)local d=0
-for _,j in u(_)do
-d=d+1
-q(2,(6*d)-4,w(j,1,3)..K..a[j])end
-k(255,0,0)for _,j in u(_)do
-d=d+1
-q(2,(6*d)-2,w(j,1,3)..K..b[j])end
-k(0,0,0)d=d+1
-q(2,(6*d),"Unit Manager")end
-function r()b[_[1]]=0
-b[_[2]]=1
-b[_[3]]=0
-b[_[4]]=0
-b[_[5]]=0
-b[_[6]]=0
+a.f=(a[1]<<31|a[2]<<30|a[3]<<23|a[4]<<16|a[5]<<9|a[6])l(1,a.f)a.m=A(I,a.f)a.o=z(H,a.m)l(B,a.o)l(2,b.d)l(3,b.e)end
+function onDraw()k(20,20,20)t.drawClear()k(0,255,0)local c=0
+for h,i in p(h)do
+c=c+1
+q(2,(6*c)-4,x(i,1,3)..G.._[i])end
+k(255,0,0)for h,i in p(h)do
+c=c+1
+q(2,(6*c)-2,x(i,1,3)..G..a[i])end
+k(0,0,0)c=c+1
+q(2,(6*c),"Unit Manager")end
+function v()a[1]=0
+a[2]=1
+a[3]=0
+a[4]=0
+a[5]=0
+a[6]=0
 end
-function i()b[_[1]]=a[_[1]]b[_[2]]=a[_[2]]b[_[3]]=a[_[3]]b[_[4]]=a[_[4]]b[_[5]]=a[_[5]]b[_[6]]=a[_[6]]end
-function B(c)for _,j in u(p)do
-if c[_]~=y then
-c[_]=y
+function j()a[1]=_[1]a[2]=_[2]a[3]=_[3]a[4]=_[4]a[5]=_[5]a[6]=_[6]end
+function w(b)for h,i in p(u)do
+if b[h]~=y then
+b[h]=y
 end
 end
-c[c.h]={}for d=1,#p[c.h],1 do
-c[c.h][p[c.h][d]]=""
+b[b.d]={}for c=1,#u[b.d],1 do
+b[b.d][u[b.d][c]]=""
 end
 end
