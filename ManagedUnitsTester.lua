@@ -14,23 +14,23 @@ function refreshUnitType(unit)
 end
 
 managedUnits = {example = {managed = false, unitType = "none"}}
-unitTypeData = {weapon = {"mainType", "subType"}, targetDesignator = {"targetNumber", "targetX", "targetY", "targetZ"}, none = {}}
+unitTypeData = {{"mainType", "subType"}, {"targetNumber", "targetX", "targetY", "targetZ"}, [0] = {}}
 
 
 for i = 1, 2, 1 do
     managedUnits[i] = {managed = false, unitType = "none"}
 end
 
-managedUnits[1].unitType = "weapon"
+managedUnits[1].unitType = 1
 refreshUnitType(managedUnits[1])
 
-managedUnits[1].unitType = "targetDesignator"
+managedUnits[1].unitType = 2
 refreshUnitType(managedUnits[1])
 
-managedUnits[1].unitType = "none"
+managedUnits[1].unitType = 0
 refreshUnitType(managedUnits[1])
 
-managedUnits[1].unitType = "weapon"
+managedUnits[1].unitType = 1
 refreshUnitType(managedUnits[1])
 
 print("end")

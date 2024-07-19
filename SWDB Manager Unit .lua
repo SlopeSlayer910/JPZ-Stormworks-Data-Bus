@@ -56,8 +56,8 @@ unit.unitType = 2
 unit.address = -1
 
 --setup address space
-managedUnits = {example = {managed = false, unitType = "none", none = {}}}
-unitTypeData = {none = {}, weapon = {"mainType", "subType"}}
+managedUnits = {example = {managed = false, unitType = 0, none = {}}}
+unitTypeData = {[0] = {}, {"mainType", "subType"}}
 
 function onTick() --input
 	incoming.floatValue = input.getNumber(busChannel)
@@ -125,7 +125,7 @@ function onTick() --input
 			elseif incoming[1] == 1 then --manProv (Handle or Pass on)
 				if incoming[4] == unit.address then --if the request has looped back to the sending manager then pull it off and deasign the addr
 					managedUnits[incoming[5]].managed = false
-					managedUnits[incoming[5]].unitType = "none"
+					managedUnits[incoming[5]].unitType = 0
 					refreshUnitType(managedUnits[incoming[5]])
 					setBusInactive()
 				else --else pass it on
