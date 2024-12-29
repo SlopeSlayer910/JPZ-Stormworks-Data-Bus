@@ -86,7 +86,7 @@ function onTick() --input
 					setBusPassthrough()
 				end
 			end
-		elseif incoming[3] == 0 then --clearAddr --TODO change the 0 to a 1 as that is the clearAddr instruction
+		elseif incoming[3] == 1 then --clearAddr
 			unit.address = -1
 			setBusPassthrough()
 		else

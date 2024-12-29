@@ -6,38 +6,38 @@
 -- https://code.visualstudio.com/download (search "Stormworks Lua with LifeboatAPI" extension)
 --      By Nameous Changey
 -- Minimized Size: 1761 (2157 with comment) chars
-J=" = "
-I="f"
-H="I4"
+J="I4"
+I=" = "
+H="f"
 
-u=nil
-l=false
+x=nil
+p=false
 m=screen
-o=string
-v=o.sub
-n=m.drawText
-j=m.setColor
-k=output.setNumber
-B=o.unpack
-w=o.pack
-i={"returnFlag","busFreeFlag","instruction","senderAddr","recieverAddr","data"}_={}a={}z=1
-b={}b.c=2
-b.e=-1
-f={C={s=l,c=0,D={}}}r={[0]={},{"mainType","subType"}}function onTick()_.t=input.getNumber(z)_.p=w(I,_.t)_.g=B(H,_.p)_[1]=(_.g>>31 & 1)_[2]=(_.g>>30 & 1)_[3]=(_.g>>23 &(2^7-1))_[4]=(_.g>>16 &(2^7-1))_[5]=(_.g>>9 &(2^7-1))_[6]=(_.g &(2^9-1))h()if _[2]==0 then
+n=string
+w=n.sub
+l=m.drawText
+k=m.setColor
+j=output.setNumber
+A=n.unpack
+B=n.pack
+i={"returnFlag","busFreeFlag","instruction","senderAddr","recieverAddr","data"}_={}a={}y=1
+b={}b.d=2
+b.g=-1
+e={C={r=p,d=0,E={}}}t={[0]={},{"mainType","subType"}}function onTick()_.s=input.getNumber(y)_.q=B(H,_.s)_.f=A(J,_.q)_[1]=(_.f>>31 & 1)_[2]=(_.f>>30 & 1)_[3]=(_.f>>23 &(2^7-1))_[4]=(_.f>>16 &(2^7-1))_[5]=(_.f>>9 &(2^7-1))_[6]=(_.f &(2^9-1))h()if _[2]==0 then
 if _[3]==0 then
 if _[1]==0 then
 h()elseif _[1]==1 then
-if(_[6]>>7)==b.c and b.e==-1 then
-b.e=_[6]&(2^7-1)for d=1,62,1 do
-f[b.e-d]={s=l,c="none"}end
-q()else
+if(_[6]>>7)==b.d and b.g==-1 then
+b.g=_[6]&(2^7-1)for c=1,62,1 do
+e[b.g-c]={r=p,d="none"}end
+o()else
 h()end
 end
 elseif _[3]==1 then
-b.e=-1
+b.g=-1
 h()elseif _[3]==2 then
 if _[1]==0 then
-if b.e==-1 then
+if b.g==-1 then
 a[1]=1
 a[2]=0
 a[3]=2
@@ -47,43 +47,43 @@ else
 a[1]=1
 a[2]=0
 a[3]=2
-a[4]=b.e
+a[4]=b.g
 a[5]=_[4]a[6]=0
-f[_[4]].s=true
+e[_[4]].r=true
 if(_[6]>>7 & 2^2-1)==0 then
-f[_[4]].c="weapon"
-A(f[_[4]])f[_[4]].E=(_[6]>>4 & 2^3-1)f[_[4]].F=(_[6]& 2^4-1)end
+e[_[4]].d="weapon"
+u(e[_[4]])e[_[4]].G=(_[6]>>4 & 2^3-1)e[_[4]].D=(_[6]& 2^4-1)end
 end
 elseif _[1]==1 then
-if _[4]==b.e then
-f[_[5]].s=l
-f[_[5]].c=0
-A(f[_[5]])q()else
+if _[4]==b.g then
+e[_[5]].r=p
+e[_[5]].d=0
+u(e[_[5]])o()else
 h()end
 end
 else
 h()end
 else
-q()end
+o()end
 if a[2]==1 then
-if b.e==-1 then
+if b.g==-1 then
 a[1]=0
 a[2]=0
 a[3]=0
 a[4]=127
 a[5]=0
-a[6]=b.c
+a[6]=b.d
 end
 end
-a.g=(a[1]<<31|a[2]<<30|a[3]<<23|a[4]<<16|a[5]<<9|a[6])k(1,a.g)a.p=w(H,a.g)a.t=B(I,a.p)k(z,a.t)k(2,b.c)k(3,b.e)end
-function onDraw()j(20,20,20)m.drawClear()j(0,255,0)local y=0
-for d=1,#i,1 do
-n(2,6*d-4,v(i[d],1,3)..J.._[d])end
-j(255,0,0)for d=1,#i,1 do
-n(2,6*d+#i*6-2,v(i[d],1,3)..J..a[d])end
-j(0,0,0)y=#i*2+1
-n(2,6*y,"Unit Manager")end
-function q()a[1]=0
+a.f=(a[1]<<31|a[2]<<30|a[3]<<23|a[4]<<16|a[5]<<9|a[6])j(1,a.f)a.q=B(J,a.f)a.s=A(H,a.q)j(y,a.s)j(2,b.d)j(3,b.g)end
+function onDraw()k(20,20,20)m.drawClear()k(0,255,0)local v=0
+for c=1,#i,1 do
+l(2,6*c-4,w(i[c],1,3)..I.._[c])end
+k(255,0,0)for c=1,#i,1 do
+l(2,6*c+#i*6-2,w(i[c],1,3)..I..a[c])end
+k(0,0,0)v=#i*2+1
+l(2,6*v,"Unit Manager")end
+function o()a[1]=0
 a[2]=1
 a[3]=0
 a[4]=0
@@ -91,12 +91,12 @@ a[5]=0
 a[6]=0
 end
 function h()a[1]=_[1]a[2]=_[2]a[3]=_[3]a[4]=_[4]a[5]=_[5]a[6]=_[6]end
-function A(b)for x,G in pairs(r)do
-if b[x]~=u then
-b[x]=u
+function u(b)for z,F in pairs(t)do
+if b[z]~=x then
+b[z]=x
 end
 end
-b[b.c]={}for d=1,#r[b.c],1 do
-b[b.c][r[b.c][d]]=""
+b[b.d]={}for c=1,#t[b.d],1 do
+b[b.d][t[b.d][c]]=""
 end
 end
