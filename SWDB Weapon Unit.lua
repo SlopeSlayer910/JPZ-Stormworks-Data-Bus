@@ -129,7 +129,7 @@ function onTick() --input
 			outgoing[4] = 127
 			outgoing[5] = 0
 			outgoing[6] = unit.unitType
-		elseif unit.manager == -1 and unit.timeSinceManReq > 10 then --else if the unit doesn't have a manager and hasnt requested one recently request one.
+		elseif unit.manager == -1 and unit.timeSinceManReq > 30 then --else if the unit doesn't have a manager and hasnt requested one recently request one.
 			unit.timeSinceManReq = 0
 			outgoing[1] = 0
 			outgoing[2] = 0
