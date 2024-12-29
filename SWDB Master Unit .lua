@@ -131,7 +131,7 @@ function onTick() --input
 	
 	--add own instructions if the outgoing bus is Inactive
 	if outgoing[2] == 1 then --if the outgoing bus is inactive then
-		if false and unit.timeSinceAddrClear > 60 then --if the addresses havent been cleared  for more than a second, clear them. --HACK Disabled the addrClear because of possible bad play with units and their managers. --TODO Find a way to refresh the address space without screwing with unit manager relations.
+		if unit.timeSinceAddrClear > 60 then --if the addresses havent been cleared  for more than a second, clear them. --TODO Find a way to refresh the address space without screwing with unit manager relations.
 			unit.timeSinceAddrClear = 0
 			outgoing[1] = 0
 			outgoing[2] = 0

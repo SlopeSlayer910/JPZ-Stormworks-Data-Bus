@@ -95,6 +95,7 @@ function onTick() --input
 			end
 		elseif incoming[3] == 1 then --clearAddr
 			unit.address = -1
+			managedUnits = {example = {managed = false, unitType = 0, none = {}}}
 			setBusPassthrough()
 		elseif incoming[3] == 2 then --manReq/manProv
 			if incoming[1] == 0 then --manReq (Handle)
@@ -203,7 +204,7 @@ function setBusPassthrough()
 	outgoing[6] = incoming[6]
 end
 
-function refreshUnitType(unit)
+function refreshUnitType(unit) --TODO Comment to say what this is doing (Look at tests to see)
     for key, value in pairs(unitTypeData) do
         if unit[key] ~= nil then
             unit[key] = nil

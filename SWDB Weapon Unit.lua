@@ -94,6 +94,7 @@ function onTick() --input
 			end
 		elseif incoming[3] == 1 then --clearAddr
 			unit.address = -1
+			unit.manager = -1
 			setBusPassthrough()
 		elseif incoming[3] == 2 then --manReq/manProv
 			if incoming[1] == 0 then --manReq
