@@ -100,7 +100,7 @@ function onTick() --input
 			if incoming[1] == 0 then --manReq (Handle)
 				--handle the manReq
 				--TODO Handle manReq for things other than weapon
-				if unit.address == -1 then --if the unit doesnt have an address send back a not available answer
+				if unit.address == -1 or true then --if the unit doesnt have an address send back a not available answer --HACK to test launcher response to unavailable manager set manager to always return unavailable
 					outgoing[1] = 1
 					outgoing[2] = 0
 					outgoing[3] = 2

@@ -54,6 +54,8 @@ busChannel = 1
 unit = {}
 unit.unitType = 1
 unit.address = -1
+unit.manager = -1
+unit.timeSinceManReq = -1
 
 function onTick() --input
 	incoming.floatValue = input.getNumber(busChannel)
@@ -72,7 +74,7 @@ function onTick() --input
 
 	--handle incoming data
 
-	if incoming[2] == 0 then
+	if incoming[2] == 0 then --Incoming bus is active
 		if incoming[3] == 0 then --idReq/idProv
 			if incoming[1] == 0 then --idReq
 				--pass on the idReq
@@ -89,7 +91,22 @@ function onTick() --input
 		elseif incoming[3] == 1 then --clearAddr
 			unit.address = -1
 			setBusPassthrough()
-		else
+		elseif incoming[3] == 2 then --manReq/Prov
+			if incoming[1] == 0 then --manReq pass through
+				setBusPassthrough()
+			elseif incoming[1] == 1 then --manProv
+				if incoming[5] == unit.address  then
+					if incoming[4] ~= 127 then
+						unit.manager = incoming[4]
+					else
+						unit.manager = -1
+					end
+					setBusInactive()
+				else
+					setBusPassthrough()
+				end
+			end
+		else --bus is active but the instruction is unknown
 			setBusPassthrough()
 		end
 	else
@@ -105,6 +122,14 @@ function onTick() --input
 			outgoing[4] = 127
 			outgoing[5] = 0
 			outgoing[6] = unit.unitType
+		elseif unit.manager == -1 and unit.timeSinceManReq > 10 then --else if the unit doesn't have a manager and hasnt requested one recently request one.
+			unit.timeSinceManReq = 0
+			outgoing[1] = 0
+			outgoing[2] = 0
+			outgoing[3] = 2
+			outgoing[4] = unit.address
+			outgoing[5] = 127
+			outgoing[6] = 0 --TODO add ECHS or whatever data for the manager to know this is a launcher...
 		end
 	end
 
@@ -115,9 +140,14 @@ function onTick() --input
 	outgoing.floatValue = string.unpack("f", outgoing.packedData)
 	output.setNumber(busChannel, outgoing.floatValue)
 
+	--update timers
+	unit.timeSinceManReq = unit.timeSinceManReq + 1
+
 	--telemetry
 	output.setNumber(2, unit.unitType)
 	output.setNumber(3, unit.address)
+	output.setNumber(4, unit.manager)
+	output.setNumber(5, unit.timeSinceManReq)
 end
 
 function onDraw()
