@@ -45,7 +45,7 @@ end
 -- try require("Folder.Filename") to include code from another file in this, so you can store code in libraries
 -- the "LifeBoatAPI" is included by default in /_build/libs/ - you can use require("LifeBoatAPI") to get this, and use all the LifeBoatAPI.<functions>!
 
-key = {"returnFlag", "busFreeFlag", "instruction", "senderAddr", "recieverAddr","data"}
+labels = {"returnFlag", "busFreeFlag", "instruction", "senderAddr", "recieverAddr","data"}
 incoming = {}
 outgoing = {}
 busChannel = 1
@@ -163,23 +163,22 @@ function onDraw()
 	screen.setColor(20, 20, 20)
 	screen.drawClear()
 	screen.setColor(0, 255, 0)
-	local i = 0
-	for key, value in pairs(key) do
-		i = i + 1
-		screen.drawText(2, 6*i-4, string.sub(value, 1, 3) .. " = " .. incoming[value])
+	local lines = 0
+
+	for i = 1, #labels, 1 do
+		screen.drawText(2, 6*i-4, string.sub(labels[i], 1, 3) .. " = " .. incoming[i])
 	end
 
 	screen.setColor(255, 0, 0)
 
-	for key, value in pairs(key) do
-		i = i + 1
-		screen.drawText(2, 6*i-2, string.sub(value, 1, 3) .. " = " .. outgoing[value])
+	for i = 1, #labels, 1 do
+		screen.drawText(2, 6*i+#labels*6-2, string.sub(labels[i], 1, 3) .. " = " .. outgoing[i])
 	end
 
 	screen.setColor(0,0,0)
 
-	i = i + 1
-	screen.drawText(2, 6*i, "Master Unit")
+	lines = #labels*2+1
+	screen.drawText(2, 6*lines, "Master Unit")
 end
 
 function setBusInactive()
