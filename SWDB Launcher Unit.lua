@@ -130,7 +130,7 @@ function onTick() --input
 			outgoing[3] = 2
 			outgoing[4] = unit.address
 			outgoing[5] = 127
-			outgoing[6] = 0 --TODO add ECHS or whatever data for the manager to know this is a launcher...
+			outgoing[6] = 1 --TODO add ECHS or whatever data for the manager to know this is a launcher...
 		end
 	end
 

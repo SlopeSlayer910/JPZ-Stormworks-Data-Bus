@@ -6,82 +6,82 @@
 -- https://code.visualstudio.com/download (search "Stormworks Lua with LifeboatAPI" extension)
 --      By Nameous Changey
 -- Minimized Size: 1418 (1814 with comment) chars
-z="f"
+z="I4"
 y=" = "
-x="I4"
+x="f"
 
-o=screen
-p=string
-t=p.sub
-l=o.drawText
-k=o.setColor
-h=output.setNumber
-u=p.unpack
-v=p.pack
-g={"returnFlag","busFreeFlag","instruction","senderAddr","recieverAddr","data"}a={}_={}w=1
-b={}b.q=1
-b.d=-1
+m=screen
+n=string
+s=n.sub
+r=m.drawText
+k=m.setColor
+g=output.setNumber
+t=n.unpack
+w=n.pack
+h={"returnFlag","busFreeFlag","instruction","senderAddr","recieverAddr","data"}a={}_={}v=1
+b={}b.o=1
+b.f=-1
 b.i=-1
 b.j=-1
-function onTick()a.r=input.getNumber(w)a.n=v(z,a.r)a.c=u(x,a.n)a[1]=(a.c>>31 & 1)a[2]=(a.c>>30 & 1)a[3]=(a.c>>23 &(2^7-1))a[4]=(a.c>>16 &(2^7-1))a[5]=(a.c>>9 &(2^7-1))a[6]=(a.c &(2^9-1))e()if a[2]==0 then
+function onTick()a.q=input.getNumber(v)a.p=w(x,a.q)a.c=t(z,a.p)a[1]=(a.c>>31 & 1)a[2]=(a.c>>30 & 1)a[3]=(a.c>>23 &(2^7-1))a[4]=(a.c>>16 &(2^7-1))a[5]=(a.c>>9 &(2^7-1))a[6]=(a.c &(2^9-1))d()if a[2]==0 then
 if a[3]==0 then
 if a[1]==0 then
-e()elseif a[1]==1 then
-if(a[6]>>7)==b.q and b.d==-1 then
-b.d=a[6]&(2^7-1)m()else
-e()end
+d()elseif a[1]==1 then
+if(a[6]>>7)==b.o and b.f==-1 then
+b.f=a[6]&(2^7-1)l()else
+d()end
 end
 elseif a[3]==1 then
-b.d=-1
+b.f=-1
 b.i=-1
-e()elseif a[3]==2 then
+d()elseif a[3]==2 then
 if a[1]==0 then
-e()elseif a[1]==1 then
-if a[5]==b.d
+d()elseif a[1]==1 then
+if a[5]==b.f
 then
 if a[4]~=127 then
 b.i=a[4]else
 b.i=-1
 end
-m()else
-e()end
+l()else
+d()end
 end
 else
-e()end
+d()end
 else
-m()end
+l()end
 if _[2]==1 then
-if b.d==-1 then
+if b.f==-1 then
 _[1]=0
 _[2]=0
 _[3]=0
 _[4]=127
 _[5]=0
-_[6]=b.q
+_[6]=b.o
 elseif b.i==-1 and b.j>10 then
 b.j=0
 _[1]=0
 _[2]=0
 _[3]=2
-_[4]=b.d
+_[4]=b.f
 _[5]=127
-_[6]=0
+_[6]=1
 end
 end
-_.c=(_[1]<<31|_[2]<<30|_[3]<<23|_[4]<<16|_[5]<<9|_[6])h(1,_.c)_.n=v(x,_.c)_.r=u(z,_.n)h(w,_.r)b.j=b.j+1
-h(2,b.q)h(3,b.d)h(4,b.i)h(5,b.j)end
-function onDraw()k(20,20,20)o.drawClear()k(0,255,0)local s=0
-for f=1,#g,1 do
-l(2,6*f-4,t(g[f],1,3)..y..a[f])end
-k(255,0,0)for f=1,#g,1 do
-l(2,6*f+#g*6-2,t(g[f],1,3)..y.._[f])end
-k(0,0,0)s=#g*2+1
-l(2,6*s,"Launcher")end
-function m()_[1]=0
+_.c=(_[1]<<31|_[2]<<30|_[3]<<23|_[4]<<16|_[5]<<9|_[6])g(1,_.c)_.p=w(z,_.c)_.q=t(x,_.p)g(v,_.q)b.j=b.j+1
+g(2,b.o)g(3,b.f)g(4,b.i)g(5,b.j)end
+function onDraw()k(20,20,20)m.drawClear()k(0,255,0)local u=0
+for e=1,#h,1 do
+r(2,6*e-4,s(h[e],1,3)..y..a[e])end
+k(255,0,0)for e=1,#h,1 do
+r(2,6*e+#h*6-2,s(h[e],1,3)..y.._[e])end
+k(0,0,0)u=#h*2+1
+r(2,6*u,"Launcher")end
+function l()_[1]=0
 _[2]=1
 _[3]=0
 _[4]=0
 _[5]=0
 _[6]=0
 end
-function e()_[1]=a[1]_[2]=a[2]_[3]=a[3]_[4]=a[4]_[5]=a[5]_[6]=a[6]end
+function d()_[1]=a[1]_[2]=a[2]_[3]=a[3]_[4]=a[4]_[5]=a[5]_[6]=a[6]end

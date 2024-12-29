@@ -57,7 +57,7 @@ unit.address = -1
 
 --setup address space
 managedUnits = {example = {managed = false, unitType = 0, none = {}}}
-unitTypeData = {[0] = {}, {"mainType", "subType"}}
+unitTypeData = {[0] = {}, {"mainType", "subType"}, {"targetNumber", "targetX", "targetY", "targetZ"},}
 
 function onTick() --input
 	incoming.floatValue = input.getNumber(busChannel)
@@ -101,7 +101,7 @@ function onTick() --input
 			if incoming[1] == 0 then --manReq (Handle)
 				--handle the manReq
 				--TODO Handle manReq for things other than weapon
-				if unit.address == -1 or true then --if the unit doesnt have an address send back a not available answer --HACK to test launcher response to unavailable manager set manager to always return unavailable
+				if unit.address == -1 then --if the unit doesnt have an address send back a not available answer
 					outgoing[1] = 1
 					outgoing[2] = 0
 					outgoing[3] = 2
@@ -117,14 +117,14 @@ function onTick() --input
 					outgoing[6] = 0
 					managedUnits[incoming[4]].managed = true --set to be a managed unit
 					if (incoming[6]>>7 & 2^2-1) == 0 then --if the first 2 bits of the type are empty then the unit sending the request is a weapon.
-						managedUnits[incoming[4]].unitType = "weapon"
+						managedUnits[incoming[4]].unitType = 1
 						refreshUnitType(managedUnits[incoming[4]])
 						managedUnits[incoming[4]].mainType = (incoming[6] >> 4 & 2^3-1)
 						managedUnits[incoming[4]].subType = (incoming[6] & 2^4-1)
 					end
 				end
 			elseif incoming[1] == 1 then --manProv (Handle or Pass on)
-				if incoming[4] == unit.address then --if the request has looped back to the sending manager then pull it off and deasign the addr
+				if incoming[4] == unit.address then --if the request has looped back to the sending manager then pull it off and deasign the addr from the manager
 					managedUnits[incoming[5]].managed = false
 					managedUnits[incoming[5]].unitType = 0
 					refreshUnitType(managedUnits[incoming[5]])
@@ -214,7 +214,7 @@ function refreshUnitType(unit) --TODO Comment to say what this is doing (Look at
 ---@diagnostic disable-next-line: assign-type-mismatch
     unit[unit.unitType] = {}
 
-    for i = 1, #unitTypeData[unit.unitType], 1 do
+    for i = 1, #(unitTypeData[unit.unitType]), 1 do
         unit[unit.unitType][unitTypeData[unit.unitType][i]] = ""
     end
 end
