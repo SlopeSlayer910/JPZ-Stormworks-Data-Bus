@@ -209,7 +209,7 @@ function setBusPassthrough()
 	outgoing[6] = incoming[6]
 end
 
-function refreshUnitType(unit) --TODO Comment to say what this is doing (Look at tests to see)
+function refreshUnitType(unit) --FIXME Need to completely overhaul unit refresh --TODO Comment to say what this is doing (Look at tests to see)
 	for key, value in pairs(unitTypeData) do
 		if unit[key] ~= nil then
 			unit[key] = nil
