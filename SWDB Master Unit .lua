@@ -20,7 +20,6 @@ do
 	---@param simulator Simulator Use simulator:<function>() to set inputs etc.
 	---@param ticks     number Number of ticks since simulator started
 	function onLBSimulatorTick(simulator, ticks)
-
 		-- touchscreen defaults
 		local screenConnection = simulator:getTouchScreen(1)
 		simulator:setInputBool(1, screenConnection.isTouched)
@@ -30,11 +29,11 @@ do
 		simulator:setInputNumber(4, screenConnection.touchY)
 
 		-- NEW! button/slider options from the UI
-		simulator:setInputBool(31, simulator:getIsClicked(1))       -- if button 1 is clicked, provide an ON pulse for input.getBool(31)
-		simulator:setInputNumber(31, simulator:getSlider(1))        -- set input 31 to the value of slider 1
+		simulator:setInputBool(31, simulator:getIsClicked(1)) -- if button 1 is clicked, provide an ON pulse for input.getBool(31)
+		simulator:setInputNumber(31, simulator:getSlider(1)) -- set input 31 to the value of slider 1
 
-		simulator:setInputBool(32, simulator:getIsToggled(2))       -- make button 2 a toggle, for input.getBool(32)
-		simulator:setInputNumber(32, simulator:getSlider(2) * 50)   -- set input 32 to the value from slider 2 * 50
+		simulator:setInputBool(32, simulator:getIsToggled(2)) -- make button 2 a toggle, for input.getBool(32)
+		simulator:setInputNumber(32, simulator:getSlider(2) * 50) -- set input 32 to the value from slider 2 * 50
 	end;
 end
 ---@endsection
@@ -45,7 +44,7 @@ end
 -- try require("Folder.Filename") to include code from another file in this, so you can store code in libraries
 -- the "LifeBoatAPI" is included by default in /_build/libs/ - you can use require("LifeBoatAPI") to get this, and use all the LifeBoatAPI.<functions>!
 
-labels = {"returnFlag", "busFreeFlag", "instruction", "senderAddr", "recieverAddr","data"}
+labels = { "returnFlag", "busFreeFlag", "instruction", "senderAddr", "recieverAddr", "data" }
 incoming = {}
 outgoing = {}
 busChannel = 1
@@ -58,13 +57,13 @@ unit.timeSinceAddrClear = 0
 
 --setup address space
 addresses = {}
-addresses[0] = {type = 0, occupied = true}
+addresses[0] = { type = 0, occupied = true }
 for i = 1, 125, 1 do
-	addresses[i] = {type = 1, occupied = false}
+	addresses[i] = { type = 1, occupied = false }
 end
-addresses[63] = {type = 2, occupied = false}
-addresses[126] = {type = 2, occupied = false}
-addresses[127] = {type = 3, occupied = true}
+addresses[63] = { type = 2, occupied = false }
+addresses[126] = { type = 2, occupied = false }
+addresses[127] = { type = 3, occupied = true }
 
 function onTick() --input
 	incoming.floatValue = input.getNumber(busChannel)
@@ -73,10 +72,10 @@ function onTick() --input
 	--incoming data
 	incoming[1] = (incoming.int >> 31 & 1)
 	incoming[2] = (incoming.int >> 30 & 1)
-	incoming[3] = (incoming.int >> 23 & (2^7-1))
-	incoming[4] = (incoming.int >> 16 & (2^7-1))
-	incoming[5] = (incoming.int >> 9 & (2^7-1))
-	incoming[6] = (incoming.int & (2^9-1))
+	incoming[3] = (incoming.int >> 23 & (2 ^ 7 - 1))
+	incoming[4] = (incoming.int >> 16 & (2 ^ 7 - 1))
+	incoming[5] = (incoming.int >> 9 & (2 ^ 7 - 1))
+	incoming[6] = (incoming.int & (2 ^ 9 - 1))
 
 	--default bus to setBusPassthrough
 	setBusPassthrough()
@@ -91,17 +90,17 @@ function onTick() --input
 				outgoing[4] = 0
 				outgoing[5] = 127
 				outgoing[6] = incoming[6] << 7
-	
+
 				for index, value in pairs(addresses) do --search addresses to find find first unoccupied address with the type requested and update data to show that
 					if value.occupied == false and value.type == incoming[6] then
-						outgoing[6] = outgoing[6] | index
+						outgoing[6] = outgoing[6]| index
 						value.occupied = true
 						break
 					end
 				end
 			elseif incoming[1] == 1 then --idProv
 				--if the idProv hasn't been pulled off the bus before being handed back to the master, pull it off the bus and set the address to unoccupied.
-				local address = incoming[6] & (2^7-1)
+				local address = incoming[6] & (2 ^ 7 - 1)
 				addresses[address].occupied = false
 				setBusInactive()
 			end
@@ -110,28 +109,19 @@ function onTick() --input
 				addresses[i].occupied = false
 			end
 			setBusInactive()
-		elseif incoming[3] == 2 then --manReq/manProv has looped back to the master
-			if incoming[1] == 0 then --manReq
-				outgoing[1] = 1
-				outgoing[2] = 0
-				outgoing[3] = 2
-				outgoing[4] = 127
-				outgoing[5] = incoming[4]
-				outgoing[6] = 0
-			elseif incoming[1] == 1 then --manProv
-				setBusPassthrough()
-			end
+		elseif incoming[3] == 10 then --manReq/manProv has looped back to the master
+			setBusPassthrough()
 		else
 			setBusPassthrough()
 		end
 	else
 		setBusInactive()
 	end
-	
-	
+
+
 	--add own instructions if the outgoing bus is Inactive
-	if outgoing[2] == 1 then --if the outgoing bus is inactive then
-		if unit.timeSinceAddrClear > 360 then --if the addresses havent been cleared  for more than a second, clear them. --TODO Find a way to refresh the address space without screwing with unit manager relations (Repeatidly resetting managed units that havent changed.)
+	if outgoing[2] == 1 then            --if the outgoing bus is inactive then
+		if unit.timeSinceAddrClear > 600 then --if the addresses havent been cleared  for more than a second, clear them. --TODO Find a way to refresh the address space without screwing with unit manager relations (Repeatidly resetting managed units that havent changed.)
 			unit.timeSinceAddrClear = 0
 			outgoing[1] = 0
 			outgoing[2] = 0
@@ -165,19 +155,19 @@ function onDraw()
 	local lines = 0
 
 	for i = 1, #labels, 1 do
-		screen.drawText(2, 6*i-4, string.sub(labels[i], 1, 3) .. " = " .. incoming[i])
+		screen.drawText(2, 6 * i - 4, string.sub(labels[i], 1, 3) .. " = " .. incoming[i])
 	end
 
 	screen.setColor(255, 0, 0)
 
 	for i = 1, #labels, 1 do
-		screen.drawText(2, 6*i+#labels*6-2, string.sub(labels[i], 1, 3) .. " = " .. outgoing[i])
+		screen.drawText(2, 6 * i + #labels * 6 - 2, string.sub(labels[i], 1, 3) .. " = " .. outgoing[i])
 	end
 
-	screen.setColor(0,0,0)
+	screen.setColor(0, 0, 0)
 
-	lines = #labels*2+1
-	screen.drawText(2, 6*lines, "Master Unit")
+	lines = #labels * 2 + 1
+	screen.drawText(2, 6 * lines, "Master Unit")
 end
 
 function setBusInactive()
