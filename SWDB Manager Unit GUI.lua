@@ -20,7 +20,6 @@ do
 	---@param simulator Simulator Use simulator:<function>() to set inputs etc.
 	---@param ticks     number Number of ticks since simulator started
 	function onLBSimulatorTick(simulator, ticks)
-
 		-- touchscreen defaults
 		local screenConnection = simulator:getTouchScreen(1)
 		simulator:setInputBool(1, screenConnection.isTouched)
@@ -30,11 +29,11 @@ do
 		simulator:setInputNumber(4, screenConnection.touchY)
 
 		-- NEW! button/slider options from the UI
-		simulator:setInputBool(31, simulator:getIsClicked(1))       -- if button 1 is clicked, provide an ON pulse for input.getBool(31)
-		simulator:setInputNumber(31, simulator:getSlider(1))        -- set input 31 to the value of slider 1
+		simulator:setInputBool(31, simulator:getIsClicked(1)) -- if button 1 is clicked, provide an ON pulse for input.getBool(31)
+		simulator:setInputNumber(31, simulator:getSlider(1)) -- set input 31 to the value of slider 1
 
-		simulator:setInputBool(32, simulator:getIsToggled(2))       -- make button 2 a toggle, for input.getBool(32)
-		simulator:setInputNumber(32, simulator:getSlider(2) * 50)   -- set input 32 to the value from slider 2 * 50
+		simulator:setInputBool(32, simulator:getIsToggled(2)) -- make button 2 a toggle, for input.getBool(32)
+		simulator:setInputNumber(32, simulator:getSlider(2) * 50) -- set input 32 to the value from slider 2 * 50
 	end;
 end
 ---@endsection
@@ -45,7 +44,7 @@ end
 -- try require("Folder.Filename") to include code from another file in this, so you can store code in libraries
 -- the "LifeBoatAPI" is included by default in /_build/libs/ - you can use require("LifeBoatAPI") to get this, and use all the LifeBoatAPI.<functions>!
 
-labels = {"returnFlag", "busFreeFlag", "instruction", "senderAddr", "recieverAddr","data"}
+labels = { "returnFlag", "busFreeFlag", "instruction", "senderAddr", "recieverAddr", "data" }
 incoming = {}
 outgoing = {}
 busChannel = 1
@@ -56,9 +55,9 @@ unit.unitType = 2
 unit.address = -1
 
 --setup address space
-managedUnits = {example = {managed = false, unitType = 0, none = {}}}
+managedUnits = { example = { managed = false, unitType = 0, none = {} } }
 managedUnitsCount = 0
-unitTypeData = {[0] = {}, {"mainType", "subType"}, {"targetNumber", "targetX", "targetY", "targetZ"},}
+unitTypeData = { [0] = {}, { "mainType", "subType" }, { "targetNumber", "targetX", "targetY", "targetZ" }, }
 
 function onTick() --input
 	incoming.floatValue = input.getNumber(busChannel)
@@ -67,38 +66,35 @@ function onTick() --input
 	--incoming data
 	incoming[1] = (incoming.int >> 31 & 1)
 	incoming[2] = (incoming.int >> 30 & 1)
-	incoming[3] = (incoming.int >> 23 & (2^7-1))
-	incoming[4] = (incoming.int >> 16 & (2^7-1))
-	incoming[5] = (incoming.int >> 9 & (2^7-1))
-	incoming[6] = (incoming.int & (2^9-1))
+	incoming[3] = (incoming.int >> 23 & (2 ^ 7 - 1))
+	incoming[4] = (incoming.int >> 16 & (2 ^ 7 - 1))
+	incoming[5] = (incoming.int >> 9 & (2 ^ 7 - 1))
+	incoming[6] = (incoming.int & (2 ^ 9 - 1))
 
 	--default bus to setBusPassthrough
-	setBusPassthrough()
+
 
 	--handle incoming data
 
-	if incoming[2] == 0 then --if active incoming bus 
+	if incoming[2] == 0 then --if active incoming bus
 		if incoming[3] == 0 then --idReq/idProv
 			if incoming[1] == 0 then --idReq (Pass on)
 				--pass on the idReq
-				setBusPassthrough()
-			elseif incoming[1] == 1 then --idProv (Handle or Pass on)
+			elseif incoming[1] == 1 then                               --idProv (Handle or Pass on)
 				--check the incoming idProv to see if it is able to be used by this unit, if it is take it off the bus and assign this unit the provided number. if not then pass it on.
 				if (incoming[6] >> 7) == unit.unitType and unit.address == -1 then --if the two greatest data bits which indicate the type match the unit's needed type then take it off the bus and assign this unit the provided number.
-					unit.address = incoming[6] & (2^7-1) --set the unit address to the address provided by the idProv
+					unit.address = incoming[6] & (2 ^ 7 - 1)           --set the unit address to the address provided by the idProv
 					for i = 1, 62, 1 do
-						managedUnits[unit.address-i] = {managed = false, unitType = "none"}
+						managedUnits[unit.address - i] = { managed = false, unitType = "none" }
 					end
-					setBusInactive()
 				else --else pass it on
-					setBusPassthrough()
+
 				end
 			end
 		elseif incoming[3] == 1 then --clearAddr
 			unit.address = -1
-			managedUnits = {example = {managed = false, unitType = 0, none = {}}}
+			managedUnits = { example = { managed = false, unitType = 0, none = {} } }
 			managedUnitsCount = 0
-			setBusPassthrough()
 		elseif incoming[3] == 10 then --manReq/manProv
 			if incoming[1] == 0 then --manReq (Handle)
 				--handle the manReq
@@ -121,11 +117,11 @@ function onTick() --input
 					managedUnits[incoming[4]].managed = true --set to be a managed unit
 					managedUnitsCount = managedUnitsCount + 1
 
-					if (incoming[6]>>7 & 2^2-1) == 0 then --if the first 2 bits of the type are empty then the unit sending the request is a weapon.
+					if (incoming[6] >> 7 & 2 ^ 2 - 1) == 0 then --if the first 2 bits of the type are empty then the unit sending the request is a weapon.
 						managedUnits[incoming[4]].unitType = 1
 						refreshUnitType(managedUnits[incoming[4]])
-						managedUnits[incoming[4]].mainType = (incoming[6] >> 4 & 2^3-1)
-						managedUnits[incoming[4]].subType = (incoming[6] & 2^4-1)
+						managedUnits[incoming[4]].mainType = (incoming[6] >> 4 & 2 ^ 3 - 1)
+						managedUnits[incoming[4]].subType = (incoming[6] & 2 ^ 4 - 1)
 					end
 				end
 			elseif incoming[1] == 1 then --manProv (Handle or Pass on)
@@ -133,41 +129,16 @@ function onTick() --input
 					managedUnits[incoming[5]].managed = false
 					managedUnits[incoming[5]].unitType = 0
 					refreshUnitType(managedUnits[incoming[5]])
-					setBusInactive()
 				else --else pass it on
-					setBusPassthrough()
+
 				end
 			end
 		else --pass on other non recognised instructions
-			setBusPassthrough()
+
 		end
 	else --else set bus inactive
-		setBusInactive()
-	end
-	
-	--add own instructions if the outgoing bus is Inactive
-	if outgoing[2] == 1 then --if the outgoing bus is inactive then
-		if unit.address == -1 then --if the unit doesn't have a address request one.
-			outgoing[1] = 0
-			outgoing[2] = 0
-			outgoing[3] = 0
-			outgoing[4] = 127
-			outgoing[5] = 0
-			outgoing[6] = unit.unitType
-		end
-	end
 
-	--outbound packet
-	outgoing.int = (outgoing[1] << 31 | outgoing[2] << 30 | outgoing[3] << 23 | outgoing[4] << 16 | outgoing[5] << 9 | outgoing[6])
-	output.setNumber(1, outgoing.int)
-	outgoing.packedData = string.pack("I4", outgoing.int)
-	outgoing.floatValue = string.unpack("f", outgoing.packedData)
-	output.setNumber(busChannel, outgoing.floatValue)
-
-	--telemetry
-	output.setNumber(2, unit.unitType)
-	output.setNumber(3, unit.address)
-	output.setNumber(4, managedUnitsCount)
+	end
 end
 
 function onDraw()
@@ -177,50 +148,52 @@ function onDraw()
 	local lines = 0
 
 	for i = 1, #labels, 1 do
-		screen.drawText(2, 6*i-4, string.sub(labels[i], 1, 3) .. " = " .. incoming[i])
+		screen.drawText(2, 6 * i - 4, string.sub(labels[i], 1, 3) .. " = " .. incoming[i])
 	end
 
 	screen.setColor(255, 0, 0)
 
-	for i = 1, #labels, 1 do
-		screen.drawText(2, 6*i+#labels*6-2, string.sub(labels[i], 1, 3) .. " = " .. outgoing[i])
+	i = 1
+	screen.drawText(2, 6 * i + #labels * 6 - 2, "Managed Units:" .. managedUnitsCount)
+
+	managedUnitsAddresses = "Managed units include:   "
+	for key, value in pairs(managedUnits) do
+		if value.managed then
+			managedUnitsAddresses = managedUnitsAddresses .. key .. "; "
+		end
 	end
 
-	screen.setColor(0,0,0)
+	i = 2
+	screen.drawText(2, 6 * i + #labels * 6 - 2, managedUnitsAddresses)
 
-	lines = #labels*2+1
-	screen.drawText(2, 6*lines, "Unit Manager")
-end
+	managedWeaponsAddresses = "Managed weapons include: "
+	for key, value in pairs(managedUnits) do
+		if value.managed and (value.unitType == 1) then
+			managedWeaponsAddresses = managedWeaponsAddresses .. key .. "; "
+		end
+	end
 
-function setBusInactive()
-	outgoing[1] = 0
-	outgoing[2] = 1
-	outgoing[3] = 0
-	outgoing[4] = 0
-	outgoing[5] = 0
-	outgoing[6] = 0
-end
+	i = 3
+	screen.drawText(2, 6 * i + #labels * 6 - 2, managedWeaponsAddresses)
 
-function setBusPassthrough()
-	outgoing[1] = incoming[1]
-	outgoing[2] = incoming[2]
-	outgoing[3] = incoming[3]
-	outgoing[4] = incoming[4]
-	outgoing[5] = incoming[5]
-	outgoing[6] = incoming[6]
+
+	screen.setColor(0, 0, 0)
+
+	lines = math.max(#labels * 2 + 1, screen.getHeight() - 4)
+	screen.drawText(2, 6 * lines, "Unit Manager")
 end
 
 function refreshUnitType(unit) --TODO Comment to say what this is doing (Look at tests to see)
-    for key, value in pairs(unitTypeData) do
-        if unit[key] ~= nil then
-            unit[key] = nil
-        end
-    end
+	for key, value in pairs(unitTypeData) do
+		if unit[key] ~= nil then
+			unit[key] = nil
+		end
+	end
 
----@diagnostic disable-next-line: assign-type-mismatch
-    unit[unit.unitType] = {}
+	---@diagnostic disable-next-line: assign-type-mismatch
+	unit[unit.unitType] = {}
 
-    for i = 1, #(unitTypeData[unit.unitType]), 1 do
-        unit[unit.unitType][unitTypeData[unit.unitType][i]] = "" --TODO Find out if nil instead of "" makes a difference. Find out if it's needed at all.
-    end
+	for i = 1, #(unitTypeData[unit.unitType]), 1 do
+		unit[unit.unitType][unitTypeData[unit.unitType][i]] = ""
+	end
 end
