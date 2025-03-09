@@ -57,9 +57,11 @@ unit.address = -1
 --setup address space
 managedUnits = { example = { managed = false, unitType = 0, none = {} } }
 managedUnitsCount = 0
-unitTypeData = { [0] = {}, { "mainType", "subType" }, { "targetNumber", "targetX", "targetY", "targetZ" }, }
+unitTypeData = { [0] = {}, {"name", "mainType", "subType" }, { "targetNumber", "targetX", "targetY", "targetZ" }, }
 
 function onTick() --input
+	unitSelected = input.getNumber(2)
+
 	incoming.floatValue = input.getNumber(busChannel)
 	incoming.packedData = string.pack("f", incoming.floatValue)
 	incoming.int = string.unpack("I4", incoming.packedData)
@@ -176,6 +178,18 @@ function onDraw()
 	i = 3
 	screen.drawText(2, 6 * i + #labels * 6 - 2, managedWeaponsAddresses)
 
+	i = 4
+	screen.drawText(2, 6 * i + #labels * 6 - 2, "Unit Selected: " .. unitSelected)
+
+	unitSelectedData = managedUnits[unitSelected] or {}
+	unitSelectedType = unitSelectedData.unitType or -1
+
+	unitSelectedString = "Type: " .. unitSelectedType .. " Fields: "
+	for key, value in pairs(unitSelectedData) do
+		unitSelectedString = unitSelectedString .. key .. "=" .. ((type(value)=="boolean" or type(value) == "table") and (value and "true" or "false") or value) .. "\n"
+	end
+	i = 5
+	screen.drawText(2, 6 * i + #labels * 6 - 2, unitSelectedString)
 
 	screen.setColor(0, 0, 0)
 

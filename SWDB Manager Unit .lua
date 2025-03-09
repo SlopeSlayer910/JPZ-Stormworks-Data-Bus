@@ -58,7 +58,7 @@ unit.address = -1
 --setup address space
 managedUnits = {example = {managed = false, unitType = 0, none = {}}}
 managedUnitsCount = 0
-unitTypeData = {[0] = {}, {"mainType", "subType"}, {"targetNumber", "targetX", "targetY", "targetZ"},}
+unitTypeData = {[0] = {}, {"name", "mainType", "subType"}, {"targetNumber", "targetX", "targetY", "targetZ"},}
 
 function onTick() --input
 	incoming.floatValue = input.getNumber(busChannel)
