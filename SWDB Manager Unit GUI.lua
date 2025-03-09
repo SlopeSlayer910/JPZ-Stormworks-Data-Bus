@@ -57,7 +57,7 @@ unit.address = -1
 --setup address space
 managedUnits = { example = { managed = false, unitType = 0, none = {} } }
 managedUnitsCount = 0
-unitTypeData = { [0] = {}, {"name", "mainType", "subType" }, { "targetNumber", "targetX", "targetY", "targetZ" }, }
+unitTypeData = { [0] = {}, { "name", "mainType", "subType" }, { "targetNumber", "targetX", "targetY", "targetZ" }, }
 
 function onTick() --input
 	unitSelected = input.getNumber(2)
@@ -74,7 +74,7 @@ function onTick() --input
 	incoming[6] = (incoming.int & (2 ^ 9 - 1))
 
 	--default bus to setBusPassthrough
-
+	setBusPassthrough()
 
 	--handle incoming data
 
@@ -82,6 +82,7 @@ function onTick() --input
 		if incoming[3] == 0 then --idReq/idProv
 			if incoming[1] == 0 then --idReq (Pass on)
 				--pass on the idReq
+				setBusPassthrough()
 			elseif incoming[1] == 1 then                               --idProv (Handle or Pass on)
 				--check the incoming idProv to see if it is able to be used by this unit, if it is take it off the bus and assign this unit the provided number. if not then pass it on.
 				if (incoming[6] >> 7) == unit.unitType and unit.address == -1 then --if the two greatest data bits which indicate the type match the unit's needed type then take it off the bus and assign this unit the provided number.
@@ -89,14 +90,16 @@ function onTick() --input
 					for i = 1, 62, 1 do
 						managedUnits[unit.address - i] = { managed = false, unitType = "none" }
 					end
+					setBusInactive()
 				else --else pass it on
-
+					setBusPassthrough()
 				end
 			end
 		elseif incoming[3] == 1 then --clearAddr
 			unit.address = -1
 			managedUnits = { example = { managed = false, unitType = 0, none = {} } }
 			managedUnitsCount = 0
+			setBusPassthrough()
 		elseif incoming[3] == 10 then --manReq/manProv
 			if incoming[1] == 0 then --manReq (Handle)
 				--handle the manReq
@@ -131,15 +134,74 @@ function onTick() --input
 					managedUnits[incoming[5]].managed = false
 					managedUnits[incoming[5]].unitType = 0
 					refreshUnitType(managedUnits[incoming[5]])
+					setBusInactive()
 				else --else pass it on
-
+					setBusPassthrough()
 				end
 			end
 		else --pass on other non recognised instructions
-
+			setBusPassthrough()
 		end
 	else --else set bus inactive
+		setBusInactive()
+	end
 
+	--add own instructions if the outgoing bus is Inactive
+	if outgoing[2] == 1 then --if the outgoing bus is inactive then
+		if unit.address == -1 then --if the unit doesn't have a address request one.
+			outgoing[1] = 0
+			outgoing[2] = 0
+			outgoing[3] = 0
+			outgoing[4] = 127
+			outgoing[5] = 0
+			outgoing[6] = unit.unitType
+		end
+	end
+
+	--outbound packet
+	outgoing.int = (outgoing[1] << 31 | outgoing[2] << 30 | outgoing[3] << 23 | outgoing[4] << 16 | outgoing[5] << 9 | outgoing[6])
+	output.setNumber(1, outgoing.int)
+	outgoing.packedData = string.pack("I4", outgoing.int)
+	outgoing.floatValue = string.unpack("f", outgoing.packedData)
+	output.setNumber(busChannel, outgoing.floatValue)
+
+	--telemetry
+	output.setNumber(2, unit.unitType)
+	output.setNumber(3, unit.address)
+	output.setNumber(4, managedUnitsCount)
+end
+
+function setBusInactive()
+	outgoing[1] = 0
+	outgoing[2] = 1
+	outgoing[3] = 0
+	outgoing[4] = 0
+	outgoing[5] = 0
+	outgoing[6] = 0
+end
+
+function setBusPassthrough()
+	outgoing[1] = incoming[1]
+	outgoing[2] = incoming[2]
+	outgoing[3] = incoming[3]
+	outgoing[4] = incoming[4]
+	outgoing[5] = incoming[5]
+	outgoing[6] = incoming[6]
+end
+
+function refreshUnitType(unit) --TODO Comment to say what this is doing (Look at tests to see)
+	for key, value in pairs(unitTypeData) do
+		if unit[key] ~= nil then
+			unit[key] = nil
+		end
+	end
+
+	---@diagnostic disable-next-line: assign-type-mismatch
+	unit[unit.unitType] = {}
+
+	for i = 1, #(unitTypeData[unit.unitType]), 1 do
+		unit[unit.unitType][unitTypeData[unit.unitType][i]] =
+		""                                                       --TODO Find out if nil instead of "" makes a difference. Find out if it's needed at all.
 	end
 end
 
@@ -186,7 +248,9 @@ function onDraw()
 
 	unitSelectedString = "Type: " .. unitSelectedType .. " Fields: "
 	for key, value in pairs(unitSelectedData) do
-		unitSelectedString = unitSelectedString .. key .. "=" .. ((type(value)=="boolean" or type(value) == "table") and (value and "true" or "false") or value) .. "\n"
+		unitSelectedString = unitSelectedString ..
+		key ..
+		"=" .. ((type(value) == "boolean" or type(value) == "table") and (value and "true" or "false") or value) .. "\n"
 	end
 	i = 5
 	screen.drawText(2, 6 * i + #labels * 6 - 2, unitSelectedString)
@@ -195,19 +259,4 @@ function onDraw()
 
 	lines = math.max(#labels * 2 + 1, screen.getHeight() - 4)
 	screen.drawText(2, 6 * lines, "Unit Manager")
-end
-
-function refreshUnitType(unit) --TODO Comment to say what this is doing (Look at tests to see)
-	for key, value in pairs(unitTypeData) do
-		if unit[key] ~= nil then
-			unit[key] = nil
-		end
-	end
-
-	---@diagnostic disable-next-line: assign-type-mismatch
-	unit[unit.unitType] = {}
-
-	for i = 1, #(unitTypeData[unit.unitType]), 1 do
-		unit[unit.unitType][unitTypeData[unit.unitType][i]] = ""
-	end
 end
