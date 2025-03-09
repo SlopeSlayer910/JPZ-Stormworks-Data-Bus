@@ -57,6 +57,12 @@ unit.manager = -1
 unit.managerAvailable = true
 unit.timeSinceManReq = -1
 
+weapon = {}
+weapon.name = "SAM" 
+weapon.mainType = 1
+weapon.subType = 1
+--TODO Add method of weapon info to be updated via an EHCS Link
+
 function onTick() --input
 	incoming.floatValue = input.getNumber(busChannel)
 	incoming.packedData = string.pack("f", incoming.floatValue)
@@ -136,7 +142,7 @@ function onTick() --input
 			outgoing[3] = 10
 			outgoing[4] = unit.address
 			outgoing[5] = 127
-			outgoing[6] = 1 --TODO add ECHS or whatever data for the manager to know this is a launcher...
+			outgoing[6] = weapon.mainType << 4 | weapon.subType
 		end
 	end
 
