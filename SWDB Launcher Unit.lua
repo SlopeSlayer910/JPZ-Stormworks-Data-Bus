@@ -20,7 +20,6 @@ do
 	---@param simulator Simulator Use simulator:<function>() to set inputs etc.
 	---@param ticks     number Number of ticks since simulator started
 	function onLBSimulatorTick(simulator, ticks)
-
 		-- touchscreen defaults
 		local screenConnection = simulator:getTouchScreen(1)
 		simulator:setInputBool(1, screenConnection.isTouched)
@@ -30,11 +29,11 @@ do
 		simulator:setInputNumber(4, screenConnection.touchY)
 
 		-- NEW! button/slider options from the UI
-		simulator:setInputBool(31, simulator:getIsClicked(1))       -- if button 1 is clicked, provide an ON pulse for input.getBool(31)
-		simulator:setInputNumber(31, simulator:getSlider(1))        -- set input 31 to the value of slider 1
+		simulator:setInputBool(31, simulator:getIsClicked(1)) -- if button 1 is clicked, provide an ON pulse for input.getBool(31)
+		simulator:setInputNumber(31, simulator:getSlider(1)) -- set input 31 to the value of slider 1
 
-		simulator:setInputBool(32, simulator:getIsToggled(2))       -- make button 2 a toggle, for input.getBool(32)
-		simulator:setInputNumber(32, simulator:getSlider(2) * 50)   -- set input 32 to the value from slider 2 * 50
+		simulator:setInputBool(32, simulator:getIsToggled(2)) -- make button 2 a toggle, for input.getBool(32)
+		simulator:setInputNumber(32, simulator:getSlider(2) * 50) -- set input 32 to the value from slider 2 * 50
 	end;
 end
 ---@endsection
@@ -45,7 +44,7 @@ end
 -- try require("Folder.Filename") to include code from another file in this, so you can store code in libraries
 -- the "LifeBoatAPI" is included by default in /_build/libs/ - you can use require("LifeBoatAPI") to get this, and use all the LifeBoatAPI.<functions>!
 
-labels = {"returnFlag", "busFreeFlag", "instruction", "senderAddr", "recieverAddr","data"}
+labels = { "returnFlag", "busFreeFlag", "instruction", "senderAddr", "recieverAddr", "data" }
 incoming = {}
 outgoing = {}
 busChannel = 1
@@ -55,6 +54,7 @@ unit = {}
 unit.unitType = 1
 unit.address = -1
 unit.manager = -1
+unit.managerAvailable = true
 unit.timeSinceManReq = -1
 
 function onTick() --input
@@ -64,10 +64,10 @@ function onTick() --input
 	--incoming data
 	incoming[1] = (incoming.int >> 31 & 1)
 	incoming[2] = (incoming.int >> 30 & 1)
-	incoming[3] = (incoming.int >> 23 & (2^7-1))
-	incoming[4] = (incoming.int >> 16 & (2^7-1))
-	incoming[5] = (incoming.int >> 9 & (2^7-1))
-	incoming[6] = (incoming.int & (2^9-1))
+	incoming[3] = (incoming.int >> 23 & (2 ^ 7 - 1))
+	incoming[4] = (incoming.int >> 16 & (2 ^ 7 - 1))
+	incoming[5] = (incoming.int >> 9 & (2 ^ 7 - 1))
+	incoming[6] = (incoming.int & (2 ^ 9 - 1))
 
 	--default bus to setBusPassthrough
 	setBusPassthrough()
@@ -79,10 +79,10 @@ function onTick() --input
 			if incoming[1] == 0 then --idReq
 				--pass on the idReq
 				setBusPassthrough()
-			elseif incoming[1] == 1 then --idProv
+			elseif incoming[1] == 1 then                               --idProv
 				--check the incoming idProv to see if it is able to be used by this unit, if it is take it off the bus and assign this unit the provided number. if not then pass it on.
 				if (incoming[6] >> 7) == unit.unitType and unit.address == -1 then --if the two greatest data bits which indicate the type match the unit's needed type then take it off the bus and assign this unit the provided number. if not then pass it on.
-					unit.address = incoming[6] & (2^7-1) --set the unit address to the address provided by the idProv
+					unit.address = incoming[6] & (2 ^ 7 - 1)           --set the unit address to the address provided by the idProv
 					setBusInactive()
 				else
 					setBusPassthrough()
@@ -92,11 +92,17 @@ function onTick() --input
 			unit.address = -1
 			unit.manager = -1
 			setBusPassthrough()
-		elseif incoming[3] == 2 then --manReq/Prov
+		elseif incoming[3] == 10 then --manReq/Prov
 			if incoming[1] == 0 then --manReq pass through
-				setBusPassthrough()
+				if incoming[4] == unit.address then
+					unit.managerAvailable = false
+					setBusInactive()
+				else
+					setBusPassthrough()
+				end
 			elseif incoming[1] == 1 then --manProv
-				if incoming[5] == unit.address  then
+				unit.managerAvailable = true
+				if incoming[5] == unit.address then
 					if incoming[4] ~= 127 then
 						unit.manager = incoming[4]
 					else
@@ -113,7 +119,7 @@ function onTick() --input
 	else
 		setBusInactive()
 	end
-	
+
 	--add own instructions if the outgoing bus is Inactive
 	if outgoing[2] == 1 then --if the outgoing bus is inactive then
 		if unit.address == -1 then
@@ -123,11 +129,11 @@ function onTick() --input
 			outgoing[4] = 127
 			outgoing[5] = 0
 			outgoing[6] = unit.unitType
-		elseif unit.manager == -1 and unit.timeSinceManReq > 30 then --else if the unit doesn't have a manager and hasnt requested one recently request one.
+		elseif unit.manager == -1 and ((unit.timeSinceManReq > 30 and unit.managerAvailable) or (unit.timeSinceManReq > 120 and unit.managerAvailable == false)) then --else if the unit doesn't have a manager and hasnt requested one recently request one.
 			unit.timeSinceManReq = 0
 			outgoing[1] = 0
 			outgoing[2] = 0
-			outgoing[3] = 2
+			outgoing[3] = 10
 			outgoing[4] = unit.address
 			outgoing[5] = 127
 			outgoing[6] = 1 --TODO add ECHS or whatever data for the manager to know this is a launcher...
@@ -158,19 +164,19 @@ function onDraw()
 	local lines = 0
 
 	for i = 1, #labels, 1 do
-		screen.drawText(2, 6*i-4, string.sub(labels[i], 1, 3) .. " = " .. incoming[i])
+		screen.drawText(2, 6 * i - 4, string.sub(labels[i], 1, 3) .. " = " .. incoming[i])
 	end
 
 	screen.setColor(255, 0, 0)
 
 	for i = 1, #labels, 1 do
-		screen.drawText(2, 6*i+#labels*6-2, string.sub(labels[i], 1, 3) .. " = " .. outgoing[i])
+		screen.drawText(2, 6 * i + #labels * 6 - 2, string.sub(labels[i], 1, 3) .. " = " .. outgoing[i])
 	end
 
-	screen.setColor(0,0,0)
+	screen.setColor(0, 0, 0)
 
-	lines = #labels*2+1
-	screen.drawText(2, 6*lines, "Launcher")
+	lines = #labels * 2 + 1
+	screen.drawText(2, 6 * lines, "Launcher")
 end
 
 function setBusInactive()
