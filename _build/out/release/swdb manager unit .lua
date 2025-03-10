@@ -5,101 +5,90 @@
 -- Developed & Minimized using LifeBoatAPI - Stormworks Lua plugin for VSCode
 -- https://code.visualstudio.com/download (search "Stormworks Lua with LifeboatAPI" extension)
 --      By Nameous Changey
--- Minimized Size: 1856 (2252 with comment) chars
-K="I4"
-J=" = "
-I="f"
+-- Minimized Size: 1634 (2030 with comment) chars
+D="f"
+C=" = "
+B="I4"
 
-w=nil
-l=false
-t=screen
-q=string
-z=q.sub
-r=t.drawText
-k=t.setColor
-j=output.setNumber
-x=q.unpack
-y=q.pack
-i={"returnFlag","busFreeFlag","instruction","senderAddr","recieverAddr","data"}_={}a={}C=1
-b={}b.c=2
-b.g=-1
-e={E={m=l,c=0,D={}}}n=0
-p={[0]={},{"mainType","subType"},{"targetNumber","targetX","targetY","targetZ"}}function onTick()_.o=input.getNumber(C)_.u=y(I,_.o)_.f=x(K,_.u)_[1]=(_.f>>31 & 1)_[2]=(_.f>>30 & 1)_[3]=(_.f>>23 &(2^7-1))_[4]=(_.f>>16 &(2^7-1))_[5]=(_.f>>9 &(2^7-1))_[6]=(_.f &(2^9-1))h()if _[2]==0 then
-if _[3]==0 then
-if _[1]==0 then
-h()elseif _[1]==1 then
-if(_[6]>>7)==b.c and b.g==-1 then
-b.g=_[6]&(2^7-1)for d=1,62,1 do
-e[b.g-d]={m=l,c="none"}end
-s()else
+z=true
+r=false
+q=screen
+o=string
+v=o.sub
+n=q.drawText
+k=q.setColor
+i=output.setNumber
+x=o.unpack
+w=o.pack
+g={"returnFlag","busFreeFlag","instruction","senderAddr","recieverAddr","data"}a={}_={}u=1
+b={}b.j=2
+b.c=-1
+f={}l=0
+t={[0]={[0]=r,0},{[0]=z,1,-1,-1,"",-1},{[0]=z,1,-1,r,0,0,0}}function onTick()a.m=input.getNumber(u)a.s=w(D,a.m)a.d=x(B,a.s)a[1]=(a.d>>31 & 1)a[2]=(a.d>>30 & 1)a[3]=(a.d>>23 &(2^7-1))a[4]=(a.d>>16 &(2^7-1))a[5]=(a.d>>9 &(2^7-1))a[6]=(a.d &(2^9-1))h()if a[2]==0 then
+if a[3]==0 then
+if a[1]==0 then
+h()elseif a[1]==1 then
+if(a[6]>>7)==b.j and b.c==-1 then
+b.c=a[6]&(2^7-1)for e=1,62,1 do
+f[b.c-e]={A=r,j="none"}end
+p()else
 h()end
 end
-elseif _[3]==1 then
-b.g=-1
-e={E={m=l,c=0,D={}}}n=0
-h()elseif _[3]==10 then
-if _[1]==0 then
-if b.g==-1 then
-a[1]=1
-a[2]=0
-a[3]=10
-a[4]=127
-a[5]=_[4]a[6]=127
+elseif a[3]==1 then
+b.c=-1
+f={}l=0
+h()elseif a[3]==10 then
+if a[1]==0 then
+if b.c==-1 then
+_[1]=1
+_[2]=0
+_[3]=10
+_[4]=127
+_[5]=a[4]_[6]=127
 else
-a[1]=1
-a[2]=0
-a[3]=10
-a[4]=b.g
-a[5]=_[4]a[6]=0
-e[_[4]]={}e[_[4]].m=true
-n=n+1
-if(_[6]>>7 & 2^2-1)==0 then
-e[_[4]].c=1
-A(e[_[4]])e[_[4]].G=(_[6]>>4 & 2^3-1)e[_[4]].H=(_[6]& 2^4-1)end
+_[1]=1
+_[2]=0
+_[3]=10
+_[4]=b.c
+_[5]=a[4]_[6]=0
+l=l+1
+if(a[6]>>7 & 2^2-1)==0 then
+f[a[4]]=t[1]f[a[4]][2]=(a[6]>>4 & 2^3-1)f[a[4]][3]=(a[6]& 2^4-1)else
+f=f-1
 end
-elseif _[1]==1 then
-if _[4]==b.g then
-e[_[5]].m=l
-e[_[5]].c=0
-A(e[_[5]])s()else
+end
+elseif a[1]==1 then
+if a[4]==b.c then
+f[a[5]]=t[0]p()else
 h()end
 end
 else
 h()end
 else
-s()end
-if a[2]==1 then
-if b.g==-1 then
-a[1]=0
-a[2]=0
-a[3]=0
-a[4]=127
-a[5]=0
-a[6]=b.c
+p()end
+if _[2]==1 then
+if b.c==-1 then
+_[1]=0
+_[2]=0
+_[3]=0
+_[4]=127
+_[5]=0
+_[6]=b.j
 end
 end
-a.f=(a[1]<<31|a[2]<<30|a[3]<<23|a[4]<<16|a[5]<<9|a[6])j(1,a.f)a.u=y(K,a.f)a.o=x(I,a.u)j(C,a.o)j(2,b.c)j(3,b.g)j(4,n)end
-function onDraw()k(20,20,20)t.drawClear()k(0,255,0)local B=0
-for d=1,#i,1 do
-r(2,6*d-4,z(i[d],1,3)..J.._[d])end
-k(255,0,0)for d=1,#i,1 do
-r(2,6*d+#i*6-2,z(i[d],1,3)..J..a[d])end
-k(0,0,0)B=#i*2+1
-r(2,6*B,"Unit Manager")end
-function s()a[1]=0
-a[2]=1
-a[3]=0
-a[4]=0
-a[5]=0
-a[6]=0
+_.d=(_[1]<<31|_[2]<<30|_[3]<<23|_[4]<<16|_[5]<<9|_[6])i(1,_.d)_.s=w(B,_.d)_.m=x(D,_.s)i(u,_.m)i(2,b.j)i(3,b.c)i(4,l)end
+function onDraw()k(20,20,20)q.drawClear()k(0,255,0)local y=0
+for e=1,#g,1 do
+n(2,6*e-4,v(g[e],1,3)..C..a[e])end
+k(255,0,0)for e=1,#g,1 do
+n(2,6*e+#g*6-2,v(g[e],1,3)..C.._[e])end
+k(0,0,0)y=#g*2+1
+n(2,6*y,"Unit Manager")end
+function p()_[1]=0
+_[2]=1
+_[3]=0
+_[4]=0
+_[5]=0
+_[6]=0
 end
-function h()a[1]=_[1]a[2]=_[2]a[3]=_[3]a[4]=_[4]a[5]=_[5]a[6]=_[6]end
-function A(b)for v,F in pairs(p)do
-if b[v]~=w then
-b[v]=w
-end
-end
-b[b.c]={}for d=1,#(p[b.c]),1 do
-b[b.c][p[b.c][d]]=""
-end
-end
+function h()_[1]=a[1]_[2]=a[2]_[3]=a[3]_[4]=a[4]_[5]=a[5]_[6]=a[6]end
