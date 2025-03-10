@@ -1,36 +1,11 @@
-function refreshUnitType(unit)
-    for key, value in pairs(unitTypeData) do
-        if unit[key] ~= nil then
-            unit[key] = nil
-        end
-    end
+unitTypeData = {[0] = {[0] = false, 0},                 --managed, unitType
+                {[0] = true, 1, -1, -1, "", -1},        --managed, unitType, mainType, subType, name, nameLength
+                {[0] = true, 1, -1, false, 0, 0, 0},    --managed, unitType, targetNumber, targetActive, targetX, targetY, targetZ
+            }
 
----@diagnostic disable-next-line: assign-type-mismatch
-    unit[unit.unitType] = {}
+managedUnits = {}
 
-    for i = 1, #unitTypeData[unit.unitType], 1 do
-        unit[unit.unitType][unitTypeData[unit.unitType][i]] = ""
-    end
-end
+managedUnits[1] = unitTypeData[0]
+managedUnits[1] = unitTypeData[1]
 
-managedUnits = {example = {managed = false, unitType = "none"}}
-unitTypeData = {{"mainType", "subType"}, {"targetNumber", "targetX", "targetY", "targetZ"}, [0] = {}}
-
-
-for i = 1, 2, 1 do
-    managedUnits[i] = {managed = false, unitType = "none"}
-end
-
-managedUnits[1].unitType = 1
-refreshUnitType(managedUnits[1])
-
-managedUnits[1].unitType = 2
-refreshUnitType(managedUnits[1])
-
-managedUnits[1].unitType = 0
-refreshUnitType(managedUnits[1])
-
-managedUnits[1].unitType = 1
-refreshUnitType(managedUnits[1])
-
-print("end")
+print("End")
